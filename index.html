@@ -170,9 +170,19 @@ textarea.inp{resize:vertical;min-height:60px;line-height:1.5;}
 <div id="p-new" class="page">
   <div style="max-width:800px;margin:0 auto;">
     <div class="card">
-      <div class="card-ttl">📄 Keşif PDF Yükle</div>
-      <div class="pdf-zone" id="pzone">
-        <input type="file" accept="application/pdf" onchange="loadPDF(this)">
+      <div class="card-ttl">📥 Keşif Verisi Yükle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="position:relative;">
+          <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 12px;border:2px solid var(--grn-bd);border-radius:var(--r);background:var(--grn-bg);cursor:pointer;text-align:center;gap:4px;">
+            <input type="file" accept="application/json" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="loadJSON(this)">
+            <div style="font-size:28px;">📤</div>
+            <div style="font-size:14px;font-weight:800;color:var(--grn);">Keşif JSON Yükle</div>
+            <div style="font-size:11px;color:var(--txt3);">Keşif uygulamasından "Ofise Gönder" ile indirilen dosya</div>
+          </label>
+        </div>
+        <div style="position:relative;">
+          <div class="pdf-zone" id="pzone" style="height:100%;margin:0;">
+            <input type="file" accept="application/pdf" onchange="loadPDF(this)">
         <div class="pzico">📄</div>
         <div class="pztxt" id="pztxt">Keşif PDF dosyasını buraya sürükle veya tıkla</div>
         <div class="pzsub" id="pzsub">WhatsApp üzerinden gelen PDF — tüm bilgiler otomatik aktarılır</div>
@@ -432,6 +442,50 @@ function resetForm(){
 function showCards(){['kcard','scard','svcard'].forEach(function(id){document.getElementById(id).style.display='block';});}
 
 /* PDF */
+function loadJSON(input){
+  var file = input.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var data = JSON.parse(e.target.result);
+      if(!data._source || data._source !== 'paprika-kesif'){
+        toast('Bu bir Paprika Keşif dosyası değil','err'); return;
+      }
+      fillFromJSON(data);
+      document.getElementById('pdf-ok').textContent = '✅ Keşif JSON yüklendi — tüm bilgiler ve fotoğraflar aktarıldı';
+      document.getElementById('pdf-ok').style.display = 'block';
+      showCards();
+      toast('Keşif verisi yüklendi — ' + (data.signs||[]).length + ' tabela aktarıldı');
+    }catch(err){
+      toast('JSON okuma hatası: ' + err.message, 'err');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function fillFromJSON(d){
+  if(d.cl) document.getElementById('nc').value = d.cl;
+  if(d.pr) document.getElementById('np').value = d.pr;
+  if(d.ms) document.getElementById('nm').value = d.ms;
+  if(d.ad) document.getElementById('na').value = d.ad;
+  if(d.nt) document.getElementById('nn').value = d.nt;
+  if(d.dt){
+    // Tarih "DD.MM.YYYY HH:MM" formatında gelebilir
+    var dm = d.dt.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+    if(dm){try{var dd=new Date(dm[3]+'-'+dm[2]+'-'+dm[1]);if(!isNaN(dd))document.getElementById('nd').value=dd.toISOString().slice(0,10);}catch(ex){}}
+  }
+  // Durum
+  if(d.st){
+    document.querySelectorAll('#nstsel .sopt').forEach(function(o){
+      o.classList.toggle('on', o.dataset.v === d.st);
+    });
+  }
+  // Tabelalar
+  nSigns=[]; nSid=0;
+  document.getElementById('nslist').innerHTML='';
+  (d.signs||[]).forEach(function(s){ addSignRow(s); });
+}
+
 async function loadPDF(input){
   var file=input.files[0]; if(!file)return;
   document.getElementById('pztxt').textContent='⏳ Okunuyor...';
@@ -521,28 +575,70 @@ function parsePDF(txt){
 function addSignRow(s){
   nSid++;
   var id='ns'+nSid;
-  nSigns.push({_id:id,data:s,di:''});
+  nSigns.push({_id:id, data:s, di:'', photos: s&&s.photos ? s.photos : []});
   var el=document.getElementById('nslist');
   var div=document.createElement('div');
   div.className='tsign'; div.id=id;
-  var dims=s&&s.w&&s.h?s.w+'×'+s.h+' cm'+(s.ad?' · '+s.ad+' adet':''):'Ölçü bilgisi yok';
-  div.innerHTML=
+
+  var dims = s&&s.w&&s.h ? s.w+'×'+s.h+' cm'+(s.d?' · '+s.d+' adet':'') : 'Ölçü bilgisi yok';
+
+  // Keşif fotoğrafları
+  var photos = s&&s.photos||[];
+  var photoHtml = '';
+  if(photos.length){
+    photoHtml = '<div style="margin-top:8px;">'
+      +'<div class="lbl" style="margin-bottom:4px;">📷 Keşif Fotoğrafları ('+photos.length+')</div>'
+      +'<div style="display:grid;grid-template-columns:repeat('+Math.min(photos.length,3)+',1fr);gap:5px;">'
+      + photos.map(function(ph){
+          return '<div style="border-radius:6px;overflow:hidden;border:1px solid var(--bd);aspect-ratio:4/3;">'
+            +'<img src="'+(ph.dataUrl||ph.src||'')+'" style="width:100%;height:100%;object-fit:cover;">'
+            +(ph.note?'<div style="font-size:9px;padding:2px 4px;background:#f5f5f5;text-align:center;">'+ph.note+'</div>':'')
+          +'</div>';
+        }).join('')
+      +'</div></div>';
+  }
+
+  // mrows (çok satırlı folyo tipler)
+  var mrowsHtml = '';
+  if(s&&s.mrows&&s.mrows.length){
+    mrowsHtml = '<table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:11px;">'
+      +'<tr><th style="background:#f0f0f0;padding:3px 6px;text-align:left;border:1px solid #eee;">#</th>'
+      +'<th style="background:#f0f0f0;padding:3px 6px;text-align:left;border:1px solid #eee;">Genişlik</th>'
+      +'<th style="background:#f0f0f0;padding:3px 6px;text-align:left;border:1px solid #eee;">Yükseklik</th>'
+      +'<th style="background:#f0f0f0;padding:3px 6px;text-align:left;border:1px solid #eee;">Adet</th>'
+      +'<th style="background:#f0f0f0;padding:3px 6px;text-align:left;border:1px solid #eee;">Not</th></tr>'
+      + s.mrows.map(function(r,ri){
+          return '<tr><td style="padding:3px 6px;border:1px solid #eee;">'+(ri+1)+'</td>'
+            +'<td style="padding:3px 6px;border:1px solid #eee;">'+(r.w||'—')+'</td>'
+            +'<td style="padding:3px 6px;border:1px solid #eee;">'+(r.h||'—')+'</td>'
+            +'<td style="padding:3px 6px;border:1px solid #eee;">'+(r.d||'—')+'</td>'
+            +'<td style="padding:3px 6px;border:1px solid #eee;">'+(r.note||'—')+'</td></tr>';
+        }).join('')
+      +'</table>';
+  }
+
+  div.innerHTML =
     '<div class="tsign-hd">'
       +'<div class="tsign-num">'+nSigns.length+'</div>'
       +'<div style="flex:1">'
         +'<div style="font-size:13px;font-weight:800;">'+(s&&s.nm||'Tabela '+nSigns.length)+'</div>'
-        +'<div style="font-size:11px;color:var(--txt3);">'+esc(dims)+(s&&s.mn?' · 📍'+esc(s.mn):'')+'</div>'
+        +'<div style="font-size:11px;color:var(--txt3);">'+dims+(s&&s.mn?' · 📍'+s.mn:'')+'</div>'
       +'</div>'
     +'</div>'
     +'<div class="tsign-bd">'
-      +'<div class="kinfo">'
-        +(s&&s.tp?'<div class="kr"><span class="kk">Tip</span><span class="kv">'+esc(s.tp)+'</span></div>':'')
+      // Sol: keşif bilgileri + fotoğraflar
+      +'<div class="kinfo" style="overflow:auto;max-height:320px;">'
+        +(s&&s.tp?'<div class="kr"><span class="kk">Tip</span><span class="kv">'+s.tp+'</span></div>':'')
         +(s&&s.w?'<div class="kr"><span class="kk">Ölçü</span><span class="kv" style="color:var(--pr);font-size:15px;">'+s.w+'×'+s.h+' cm</span></div>':'')
-        +(s&&s.ad?'<div class="kr"><span class="kk">Adet</span><span class="kv">'+s.ad+'</span></div>':'')
-        +(s&&s.mn?'<div class="kr"><span class="kk">Montaj</span><span style="background:#111;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;">'+esc(s.mn)+'</span></div>':'')
-        +(s&&s.nt?'<div style="margin-top:6px;font-size:11px;color:var(--txt3);">📝 '+esc(s.nt)+'</div>':'')
+        +(s&&s.d?'<div class="kr"><span class="kk">Adet</span><span class="kv">'+s.d+'</span></div>':'')
+        +(s&&s.mn?'<div class="kr"><span class="kk">Montaj</span><span style="background:#111;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;">'+s.mn+'</span></div>':'')
+        +(s&&s.nt?'<div style="margin-top:6px;font-size:11px;color:var(--txt3);">📝 '+s.nt+'</div>':'')
+        + mrowsHtml
+        + photoHtml
       +'</div>'
+      // Sağ: tasarım yükleme
       +'<div>'
+        +'<div class="lbl" style="margin-bottom:4px;">🖼 Onaylanan Tasarım</div>'
         +'<label class="dbox" id="'+id+'db">'
           +'<input type="file" accept="image/*" data-sid="'+id+'" class="des-inp" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">'
           +'<div class="dbox-lbl" id="'+id+'dl">🖼<br>Tasarım Yükle</div>'
@@ -589,7 +685,7 @@ function saveProj(){
   var dt=document.getElementById('nd').value;
   var dtStr=dt?new Date(dt).toLocaleDateString('tr-TR'):new Date().toLocaleDateString('tr-TR');
   var signs=nSigns.map(function(ns){
-    return {nm:ns.data.nm||'',tp:ns.data.tp||'',w:ns.data.w||'',h:ns.data.h||'',ad:ns.data.ad||'',mn:ns.data.mn||'',nt:ns.data.nt||'',di:ns.di||''};
+    return {nm:ns.data.nm||'',tp:ns.data.tp||'',w:ns.data.w||'',h:ns.data.h||'',d:ns.data.d||'',mn:ns.data.mn||'',nt:ns.data.nt||'',mrows:ns.data.mrows||[],photos:ns.photos||[],di:ns.di||''};
   });
   var obj={cl:cl,pr:pr,ad:document.getElementById('na').value.trim(),ms:document.getElementById('nm').value.trim(),nt:document.getElementById('nn').value.trim(),dt:dtStr,st:st,signs:signs,ts:new Date().toISOString()};
   if(editIdx!==null){
