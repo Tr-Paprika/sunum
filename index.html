@@ -736,25 +736,25 @@ function uretimPDF(i){
     var tasarimHtml = s.di
       ? '<div style="background:#fff;border-bottom:1.5px solid #eee;padding:10px 12px;">'
           +'<div style="font-size:8px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">ONAYLANAN TASARIM</div>'
-          +'<img src="'+s.di+'" style="width:100%;max-height:220px;object-fit:contain;border-radius:6px;background:#fafafa;border:1px solid #eee;">'
+          +'<img src="'+s.di+'" style="width:100%;max-height:340px;object-fit:contain;border-radius:6px;background:#fafafa;border:1px solid #eee;">'
         +'</div>'
       : '<div style="background:#fafafa;border-bottom:1.5px solid #eee;padding:16px 12px;text-align:center;color:#ccc;font-size:12px;">Tasarım eklenmedi</div>';
 
     // ── KEŞİF BİLGİLERİ (altta - resimdeki gibi grid) ──
     var dimHtml = '';
     if(s.w && s.h){
-      dimHtml += '<div style="background:#fff5f5;border-radius:6px;padding:8px 10px;text-align:center;border:1px solid #fdd;">'
-        +'<div style="font-size:20px;font-weight:900;color:#e03d2f;line-height:1;">'+esc(s.w)+'<span style="font-size:12px;font-weight:700;">cm</span></div>'
+      dimHtml += '<div style="background:#fff5f5;border-radius:4px;padding:4px 8px;text-align:center;border:1px solid #fdd;">'
+        +'<div style="font-size:13px;font-weight:900;color:#e03d2f;line-height:1;">'+esc(s.w)+'<span style="font-size:9px;font-weight:700;">cm</span></div>'
         +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-top:2px;">GENİŞLİK</div>'
       +'</div>';
-      dimHtml += '<div style="background:#fff5f5;border-radius:6px;padding:8px 10px;text-align:center;border:1px solid #fdd;">'
-        +'<div style="font-size:20px;font-weight:900;color:#e03d2f;line-height:1;">'+esc(s.h)+'<span style="font-size:12px;font-weight:700;">cm</span></div>'
+      dimHtml += '<div style="background:#fff5f5;border-radius:4px;padding:4px 8px;text-align:center;border:1px solid #fdd;">'
+        +'<div style="font-size:13px;font-weight:900;color:#e03d2f;line-height:1;">'+esc(s.h)+'<span style="font-size:9px;font-weight:700;">cm</span></div>'
         +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-top:2px;">YÜKSEKLİK</div>'
       +'</div>';
     }
     if(s.d){
-      dimHtml += '<div style="background:#f5f5f5;border-radius:6px;padding:8px 10px;text-align:center;border:1px solid #eee;">'
-        +'<div style="font-size:20px;font-weight:900;color:#333;line-height:1;">'+esc(s.d)+'</div>'
+      dimHtml += '<div style="background:#f5f5f5;border-radius:4px;padding:4px 8px;text-align:center;border:1px solid #eee;">'
+        +'<div style="font-size:13px;font-weight:900;color:#333;line-height:1;">'+esc(s.d)+'</div>'
         +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-top:2px;">ADET</div>'
       +'</div>';
     }
@@ -814,8 +814,8 @@ function uretimPDF(i){
       // Tasarım - üstte büyük
       + tasarimHtml
       // Keşif bilgileri - altta
-      +'<div style="padding:10px 12px;background:#fafafa;border-top:1px solid #f0f0f0;">'
-        +'<div style="font-size:8px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">KEŞİF BİLGİLERİ</div>'
+      +'<div style="padding:6px 12px;background:#fafafa;border-top:1px solid #f0f0f0;">'
+        +'<div style="font-size:7px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">KEŞİF BİLGİLERİ</div>'
         +'<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;">'
           + dimHtml + noteBox
           +(s.mn?'<div style="display:flex;align-items:center;"><span style="background:#111;color:#fff;font-size:10px;font-weight:800;padding:4px 11px;border-radius:12px;">📍 '+esc(s.mn)+'</span></div>':'')
