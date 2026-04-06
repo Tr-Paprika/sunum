@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Paprika Keşif — Ofis Paneli</title>
+<title>Paprika Ofis Paneli</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -13,149 +13,153 @@
   --blu:#2563eb;--blu-bg:#eff6ff;--blu-bd:#bfdbfe;
   --pur:#7c3aed;--pur-bg:#f5f3ff;--pur-bd:#ddd6fe;
   --bg:#f4f5f7;--card:#fff;--txt:#1a1a1a;--txt2:#555;--txt3:#888;--txt4:#bbb;
-  --r:12px;--r2:8px;--shadow:0 2px 12px rgba(0,0,0,.08);
+  --r:14px;--r2:9px;--shadow:0 2px 16px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Nunito',sans-serif;}
 body{background:var(--bg);color:var(--txt);min-height:100vh;}
 
-/* LAYOUT */
-.topnav{background:#fff;border-bottom:1px solid #e8e8e8;padding:0 24px;display:flex;align-items:center;gap:16px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-.logo{font-size:18px;font-weight:900;color:var(--pr);letter-spacing:-0.5px;}
+/* TOPNAV */
+.topnav{background:#fff;border-bottom:1px solid #eee;padding:0 28px;display:flex;align-items:center;gap:12px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.logo{font-size:17px;font-weight:900;color:var(--pr);letter-spacing:-.5px;white-space:nowrap;}
 .logo em{color:var(--txt);font-style:normal;}
-.nav-tabs{display:flex;gap:4px;margin-left:16px;}
-.nav-tab{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;color:var(--txt3);transition:.15s;}
+.nav-tabs{display:flex;gap:4px;margin-left:8px;}
+.nav-tab{padding:6px 15px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;color:var(--txt3);transition:.15s;border:none;background:none;}
 .nav-tab:hover{background:var(--bg);}
 .nav-tab.on{background:var(--pr-bg);color:var(--pr);}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
-.badge-count{background:var(--pr);color:#fff;font-size:11px;font-weight:800;padding:2px 7px;border-radius:20px;}
+.ml-auto{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.pill{background:var(--pr);color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:20px;}
 
-.main{max-width:1100px;margin:0 auto;padding:24px 16px;}
+/* MAIN */
+.main{max-width:1140px;margin:0 auto;padding:24px 20px;}
 
-/* CARDS */
+/* CARD */
 .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;margin-bottom:16px;}
-.card-title{font-size:15px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title{font-size:14px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--txt);}
 
-/* UPLOAD ZONE */
-.upload-zone{border:2px dashed var(--pr-bd);border-radius:var(--r);padding:40px 20px;text-align:center;cursor:pointer;transition:.2s;background:var(--pr-bg);}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--pr);background:#fdf0ef;}
-.upload-zone input{display:none;}
-.upload-ico{font-size:40px;margin-bottom:10px;}
-.upload-txt{font-size:15px;font-weight:800;color:var(--pr);}
-.upload-sub{font-size:12px;color:var(--txt3);margin-top:4px;}
+/* STAT */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:700px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px;}
+.stat-n{font-size:30px;font-weight:900;line-height:1;}
+.stat-l{font-size:11px;font-weight:700;color:var(--txt3);margin-top:4px;}
 
-/* PROJECT LIST */
-.proj-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--r2);border:1px solid #eee;margin-bottom:8px;background:#fff;cursor:pointer;transition:.15s;}
-.proj-row:hover{border-color:var(--pr-bd);background:var(--pr-bg);}
-.proj-row.active{border-color:var(--pr);background:var(--pr-bg);}
-.proj-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.proj-info{flex:1;min-width:0;}
-.proj-name{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.proj-meta{font-size:11px;color:var(--txt3);margin-top:2px;}
-.proj-status{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;}
-
-/* STATUS COLORS */
-.s-olcum{background:var(--blu-bg);color:var(--blu);}
-.s-tasarim{background:var(--pur-bg);color:var(--pur);}
-.s-sunum{background:var(--ylw-bg);color:var(--ylw);}
-.s-onay{background:var(--grn-bg);color:var(--grn);}
-.s-uretim{background:#fff3e0;color:#e65100;}
-.s-montaj{background:#fce4ec;color:#c2185b;}
-.s-bitti{background:var(--grn-bg);color:var(--grn);}
-
-/* DETAIL PANEL */
-.detail-panel{display:none;}
-.detail-panel.open{display:block;}
-.det-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
-.det-title{font-size:20px;font-weight:900;}
-.det-sub{font-size:13px;color:var(--txt3);margin-top:2px;}
-.section-title{font-size:12px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;}
-
-/* TABELA ROWS */
-.sign-row{border:1px solid #eee;border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;background:#fafafa;}
-.sign-row-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.sign-num{width:24px;height:24px;border-radius:50%;background:var(--pr);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sign-name{font-size:13px;font-weight:800;flex:1;}
-.sign-dims{font-size:12px;color:var(--txt3);}
-.design-area{display:flex;gap:10px;align-items:center;}
-.design-preview{width:80px;height:60px;border-radius:6px;object-fit:cover;border:1px solid #eee;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:var(--txt4);font-size:10px;text-align:center;flex-shrink:0;overflow:hidden;}
-.design-preview img{width:100%;height:100%;object-fit:cover;}
-.design-upload-btn{flex:1;}
-.file-input-hidden{display:none;}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--r2);font-size:13px;font-weight:800;cursor:pointer;border:none;transition:.15s;font-family:'Nunito',sans-serif;}
-.btn:active{opacity:.8;}
-.btn-pr{background:var(--pr);color:#fff;}
-.btn-ghost{background:#fff;color:var(--txt2);border:1px solid #ddd;}
-.btn-ghost:hover{border-color:var(--pr);color:var(--pr);}
-.btn-grn{background:var(--grn);color:#fff;}
-.btn-ylw{background:var(--ylw);color:#fff;}
-.btn-pur{background:var(--pur);color:#fff;}
-.btn-sm{padding:6px 12px;font-size:12px;}
-.btn-full{width:100%;justify-content:center;}
-
-/* STATUS SELECT */
-.status-sel{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.status-opt{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:.15s;}
-.status-opt:hover{opacity:.8;}
-.status-opt.on{border-color:var(--txt);}
-
-/* GRID */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr;}}
-
-/* STAT CARDS */
-.stat-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);text-align:center;}
-.stat-n{font-size:28px;font-weight:900;}
-.stat-l{font-size:12px;color:var(--txt3);font-weight:700;margin-top:2px;}
-
-/* SUNUM MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-overlay.open{display:flex;}
-.modal{background:#fff;border-radius:var(--r);max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
-.modal-head{padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between;}
-.modal-body{padding:20px;}
-.modal-close{font-size:20px;cursor:pointer;color:var(--txt3);line-height:1;}
-
-/* SUNUM PAGE PREVIEW */
-.sunum-preview{border:2px solid #eee;border-radius:var(--r2);overflow:hidden;margin-bottom:12px;}
-.sunum-header{background:var(--pr);color:#fff;padding:14px 16px;}
-.sunum-proj{font-size:16px;font-weight:900;}
-.sunum-client{font-size:12px;opacity:.8;margin-top:2px;}
-.sunum-items{padding:12px;}
-.sunum-item{border:1px solid #eee;border-radius:var(--r2);padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:center;}
-.sunum-item-img{width:60px;height:45px;border-radius:6px;background:#f0f0f0;flex-shrink:0;overflow:hidden;}
-.sunum-item-img img{width:100%;height:100%;object-fit:cover;}
-.sunum-item-info{flex:1;}
-.sunum-item-name{font-size:13px;font-weight:800;}
-.sunum-item-dim{font-size:11px;color:var(--txt3);}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;transition:.3s;opacity:0;}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-
-/* EMPTY STATE */
-.empty{text-align:center;padding:40px 20px;color:var(--txt3);}
-.empty-ico{font-size:40px;margin-bottom:10px;}
-.empty-txt{font-size:14px;font-weight:700;}
-
-/* TABS */
+/* PAGE SYSTEM */
 .page{display:none;}
 .page.active{display:block;}
 
-/* INFO BOX */
-.info-box{background:var(--blu-bg);border:1px solid var(--blu-bd);border-radius:var(--r2);padding:12px 14px;font-size:12px;color:var(--blu);font-weight:600;margin-bottom:14px;line-height:1.6;}
+/* LAYOUT: LIST + DETAIL */
+.split{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;}
+@media(max-width:800px){.split{grid-template-columns:1fr;}}
 
-/* ONAY BADGE */
-.onay-badge{display:inline-flex;align-items:center;gap:4px;background:var(--grn-bg);border:1px solid var(--grn-bd);color:var(--grn);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;}
+/* PROJECT LIST */
+.proj-list-wrap{position:sticky;top:74px;}
+.search-box{width:100%;padding:9px 13px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;margin-bottom:10px;outline:none;}
+.search-box:focus{border-color:var(--pr);}
+.proj-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:var(--r2);border:1px solid #eee;margin-bottom:7px;cursor:pointer;transition:.15s;background:#fff;}
+.proj-row:hover{border-color:var(--pr-bd);background:var(--pr-bg);}
+.proj-row.sel{border-color:var(--pr);background:var(--pr-bg);}
+.proj-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.prow-info{flex:1;min-width:0;}
+.prow-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prow-sub{font-size:11px;color:var(--txt3);margin-top:1px;}
+.st-pill{font-size:10px;font-weight:800;padding:2px 8px;border-radius:12px;white-space:nowrap;}
 
-/* PDF PRINT */
+/* STATUS */
+.STATUS_CSS{} /* placeholder */
+.st-kesif{background:var(--blu-bg);color:var(--blu);}
+.st-tasarim{background:var(--pur-bg);color:var(--pur);}
+.st-sunum{background:var(--ylw-bg);color:var(--ylw);}
+.st-onay{background:var(--grn-bg);color:var(--grn);}
+.st-uretim{background:#fff3e0;color:#e65100;}
+.st-montaj{background:#fce4ec;color:#c2185b;}
+.st-tamam{background:var(--grn-bg);color:var(--grn);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
+.inp{width:100%;padding:9px 13px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;outline:none;transition:.15s;}
+.inp:focus{border-color:var(--pr);}
+.inp-full{grid-column:1/-1;}
+label.lbl{font-size:11px;font-weight:800;color:var(--txt3);display:block;margin-bottom:4px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--r2);font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:'Nunito',sans-serif;transition:.15s;}
+.btn:active{opacity:.75;}
+.btn-pr{background:var(--pr);color:#fff;}
+.btn-grn{background:var(--grn);color:#fff;}
+.btn-ylw{background:var(--ylw);color:#fff;}
+.btn-pur{background:var(--pur);color:#fff;}
+.btn-ghost{background:#fff;color:var(--txt2);border:1px solid #ddd;}
+.btn-ghost:hover{border-color:var(--pr);color:var(--pr);}
+.btn-red{background:#fdf2f1;color:var(--pr);border:1px solid var(--pr-bd);}
+.btn-sm{padding:6px 11px;font-size:12px;}
+.btn-full{width:100%;justify-content:center;}
+
+/* STATUS SEL */
+.st-sel{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.st-opt{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:.12s;opacity:.7;}
+.st-opt:hover{opacity:1;}
+.st-opt.on{border-color:currentColor;opacity:1;}
+
+/* SIGN BLOCKS */
+.sign-block{border:1px solid #eee;border-radius:var(--r2);margin-bottom:10px;overflow:hidden;}
+.sign-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fafafa;border-bottom:1px solid #eee;}
+.sign-num{width:24px;height:24px;border-radius:50%;background:var(--pr);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sign-body{padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;}
+@media(max-width:600px){.sign-body{grid-template-columns:1fr;}}
+.design-box{border:2px dashed #ddd;border-radius:var(--r2);min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.15s;position:relative;overflow:hidden;}
+.design-box:hover{border-color:var(--pr);background:var(--pr-bg);}
+.design-box img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit;}
+.design-box-lbl{font-size:12px;color:var(--txt3);font-weight:700;text-align:center;padding:8px;z-index:1;}
+.design-actions{display:flex;gap:6px;margin-top:8px;}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:11px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;}
+
+/* ONAY */
+.onay-box{background:var(--grn-bg);border:1px solid var(--grn-bd);border-radius:var(--r2);padding:12px 14px;font-size:13px;color:var(--grn);font-weight:800;}
+.bekliyor-box{background:var(--ylw-bg);border:1px solid var(--ylw-bd);border-radius:var(--r2);padding:12px 14px;font-size:13px;color:var(--ylw);font-weight:700;}
+
+/* ACTIONS BAR */
+.actions-bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:var(--r);max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-hd{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:16px;font-weight:900;}
+.modal-x{font-size:20px;cursor:pointer;color:var(--txt3);line-height:1;padding:4px;}
+.modal-bd{padding:18px 20px 20px;}
+
+/* SUNUM ÖNIZLEME */
+.sunum-card{border:2px solid #eee;border-radius:var(--r2);overflow:hidden;margin-bottom:14px;}
+.sunum-hd{background:var(--pr);color:#fff;padding:14px 16px;}
+.sunum-proj{font-size:16px;font-weight:900;}
+.sunum-sub{font-size:12px;opacity:.8;margin-top:2px;}
+.sunum-items{padding:10px;}
+.sunum-item{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid #eee;border-radius:8px;margin-bottom:6px;}
+.sunum-thumb{width:56px;height:42px;border-radius:6px;background:#f0f0f0;overflow:hidden;flex-shrink:0;}
+.sunum-thumb img{width:100%;height:100%;object-fit:cover;}
+.sunum-name{font-size:13px;font-weight:800;}
+.sunum-dim{font-size:11px;color:var(--txt3);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;transition:.3s;opacity:0;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--txt3);}
+.empty-ico{font-size:36px;margin-bottom:8px;}
+.empty-txt{font-size:14px;font-weight:700;}
+
+/* INFO */
+.info{background:var(--blu-bg);border:1px solid var(--blu-bd);border-radius:var(--r2);padding:11px 14px;font-size:12px;color:var(--blu);font-weight:600;line-height:1.6;margin-bottom:14px;}
+
 @media print{
-  .topnav,.nav-tabs,.btn,.upload-zone,.status-sel,.proj-row,.no-print{display:none!important;}
+  .topnav,.nav-tabs,.btn,.st-sel,.no-print{display:none!important;}
   .main{padding:0;max-width:100%;}
   .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;}
-  .detail-panel{display:block!important;}
 }
 </style>
 </head>
@@ -164,12 +168,12 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;}
 <div class="topnav">
   <div class="logo">PAPRİKA<em>OFİS</em></div>
   <div class="nav-tabs">
-    <div class="nav-tab on" onclick="switchPage('p-dashboard')">📊 Dashboard</div>
-    <div class="nav-tab" onclick="switchPage('p-projects')">📁 Projeler</div>
-    <div class="nav-tab" onclick="switchPage('p-import')">📥 Keşif Yükle</div>
+    <div class="nav-tab on" onclick="goPage('p-dash')" id="tab-dash">📊 Özet</div>
+    <div class="nav-tab" onclick="goPage('p-list')" id="tab-list">📁 Projeler</div>
+    <div class="nav-tab" onclick="goPage('p-new')" id="tab-new">➕ Yeni Proje</div>
   </div>
-  <div class="nav-right no-print">
-    <span id="proj-badge" class="badge-count">0</span>
+  <div class="ml-auto no-print">
+    <span class="pill" id="top-count">0</span>
     <span style="font-size:12px;color:var(--txt3);font-weight:700;">proje</span>
   </div>
 </div>
@@ -179,354 +183,504 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;}
 <div class="main">
 
 <!-- DASHBOARD -->
-<div id="p-dashboard" class="page active">
-  <div class="grid3" style="margin-bottom:20px;">
-    <div class="stat-card"><div class="stat-n" id="st-total">0</div><div class="stat-l">Toplam Proje</div></div>
-    <div class="stat-card"><div class="stat-n" style="color:var(--ylw)" id="st-bekliyor">0</div><div class="stat-l">Onay Bekliyor</div></div>
-    <div class="stat-card"><div class="stat-n" style="color:var(--grn)" id="st-onay">0</div><div class="stat-l">Onaylandı</div></div>
+<div id="p-dash" class="page active">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-n" id="s-total">0</div><div class="stat-l">Toplam Proje</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--pur)" id="s-tasarim">0</div><div class="stat-l">Tasarım Bekleniyor</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--ylw)" id="s-sunum">0</div><div class="stat-l">Onay Bekleniyor</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--grn)" id="s-onay">0</div><div class="stat-l">Onaylandı / Üretimde</div></div>
   </div>
   <div class="card">
     <div class="card-title">⚡ Son Projeler</div>
-    <div id="dashboard-list"></div>
+    <div id="dash-list"></div>
   </div>
 </div>
 
 <!-- PROJELER -->
-<div id="p-projects" class="page">
-  <div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;">
-    <!-- Sol: Liste -->
-    <div>
+<div id="p-list" class="page">
+  <div class="split">
+    <div class="proj-list-wrap">
       <div class="card" style="padding:14px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="card-title" style="margin:0;">📁 Projeler</div>
-          <button class="btn btn-sm btn-ghost" onclick="switchPage('p-import')">+ Ekle</button>
-        </div>
-        <input type="text" id="search-input" placeholder="🔍 Ara..." oninput="renderProjectList()"
-          style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;margin-bottom:10px;">
-        <div id="proj-list"></div>
+        <input class="search-box" placeholder="🔍 Müşteri veya proje ara..." oninput="renderList()" id="q">
+        <div id="proj-list-inner"></div>
+        <button class="btn btn-pr btn-full" style="margin-top:10px;" onclick="goPage('p-new')">➕ Yeni Proje</button>
       </div>
     </div>
-    <!-- Sağ: Detay -->
     <div id="detail-col">
-      <div class="card">
-        <div class="empty"><div class="empty-ico">👈</div><div class="empty-txt">Soldaki listeden bir proje seç</div></div>
-      </div>
+      <div class="card"><div class="empty"><div class="empty-ico">👈</div><div class="empty-txt">Sol listeden proje seç</div></div></div>
     </div>
   </div>
 </div>
 
-<!-- IMPORT -->
-<div id="p-import" class="page">
-  <div class="card" style="margin-bottom:16px;">
-    <div class="card-title">📥 Saha Uygulamasından Aktar</div>
-    <div class="info-box" style="background:#e8f4fd;border-color:#90caf9;color:#1565c0;">
-      <b>Nasıl çalışır?</b><br>
-      1️⃣ Mobil uygulamada <b>Paylaş → Ofis Paneline Aktar</b> butonuna bas<br>
-      2️⃣ İndirilen <b>.json</b> dosyasını aşağıya yükle veya içeriğini yapıştır<br>
-      3️⃣ Projeler otomatik içe aktarılır
+<!-- YENİ PROJE -->
+<div id="p-new" class="page">
+  <div class="card" style="max-width:700px;margin:0 auto;">
+    <div class="card-title">➕ Yeni Proje Ekle</div>
+    <div class="info">💡 WhatsApp'tan gelen keşif PDF'indeki bilgileri buraya gir. Tasarımları daha sonra proje detayından yükleyebilirsin.</div>
+    <div class="form-grid">
+      <div><label class="lbl">Müşteri / Firma Adı *</label><input class="inp" id="n-client" placeholder="Ör: Bobble Waffle"></div>
+      <div><label class="lbl">Proje / İş Adı *</label><input class="inp" id="n-project" placeholder="Ör: Tabela Yenileme"></div>
+      <div class="inp-full"><label class="lbl">Adres</label><input class="inp" id="n-address" placeholder="Ör: Pendik, İstanbul — Akçalı Fırın yanı"></div>
+      <div><label class="lbl">Ölçümü Alan</label><input class="inp" id="n-measurer" placeholder="Ör: Ahmet Usta"></div>
+      <div><label class="lbl">Keşif Tarihi</label><input class="inp" id="n-date" type="date"></div>
+      <div class="inp-full"><label class="lbl">Genel Not</label><textarea class="inp" id="n-note" rows="2" placeholder="Varsa özel notlar..."></textarea></div>
     </div>
-    <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;">
-      <label class="upload-zone" style="flex:1;min-width:200px;padding:24px 16px;cursor:pointer;">
-        <input type="file" accept=".json,application/json" style="display:none;" onchange="importFile(this)">
-        <div class="upload-ico">📂</div>
-        <div class="upload-txt">JSON Dosyası Seç</div>
-        <div class="upload-sub">paprika-kesif-export-*.json</div>
-      </label>
-      <div style="flex:2;min-width:250px;display:flex;flex-direction:column;gap:8px;">
-        <div style="font-size:12px;font-weight:700;color:var(--txt3);">veya JSON içeriğini yapıştır</div>
-        <textarea id="json-paste" rows="5" placeholder='[{"client":"...","project":"..."}]'
-          style="flex:1;width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:12px;font-family:monospace;resize:none;"></textarea>
-        <button class="btn btn-pr btn-full" onclick="importJSON()">📥 Yükle</button>
-      </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">✏️ Manuel Proje Ekle</div>
-    <div class="grid2" style="margin-bottom:12px;">
-      <input id="m-client" type="text" placeholder="Müşteri / Firma Adı" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
-      <input id="m-project" type="text" placeholder="Proje / İş Adı" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
-      <input id="m-address" type="text" placeholder="Adres" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
-      <input id="m-signs" type="number" placeholder="Kaç tabela? (varsayılan: 1)" min="1" max="20" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
+    <div class="sec-lbl">🪧 Tabelalar</div>
+    <div id="new-signs-list"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addNewSign()" style="margin-bottom:16px;">+ Tabela Ekle</button>
+
+    <div class="sec-lbl">Durum</div>
+    <div class="st-sel" id="new-st-sel">
+      <div class="st-opt st-kesif on" data-v="Keşif Alındı" onclick="selSt(this,'new-st-sel')">Keşif Alındı</div>
+      <div class="st-opt st-tasarim" data-v="Tasarım Bekleniyor" onclick="selSt(this,'new-st-sel')">Tasarım Bekleniyor</div>
+      <div class="st-opt st-sunum" data-v="Sunum Gönderildi" onclick="selSt(this,'new-st-sel')">Sunum Gönderildi</div>
+      <div class="st-opt st-onay" data-v="Müşteri Onayladı" onclick="selSt(this,'new-st-sel')">Müşteri Onayladı</div>
+      <div class="st-opt st-uretim" data-v="Üretimde" onclick="selSt(this,'new-st-sel')">Üretimde</div>
+      <div class="st-opt st-montaj" data-v="Montaj Bekliyor" onclick="selSt(this,'new-st-sel')">Montaj Bekliyor</div>
+      <div class="st-opt st-tamam" data-v="Tamamlandı" onclick="selSt(this,'new-st-sel')">Tamamlandı</div>
     </div>
-    <button class="btn btn-grn" onclick="addManual()">➕ Manuel Ekle</button>
+
+    <button class="btn btn-grn btn-full" onclick="saveNewProject()">💾 Projeyi Kaydet</button>
   </div>
 </div>
 
 </div><!-- /main -->
 
 <!-- SUNUM MODAL -->
-<div class="modal-overlay" id="sunum-modal">
+<div class="modal-bg" id="modal-sunum">
   <div class="modal">
-    <div class="modal-head">
-      <div style="font-size:16px;font-weight:900;">📤 Müşteri Sunumu</div>
-      <div class="modal-close" onclick="closeModal('sunum-modal')">✕</div>
+    <div class="modal-hd">
+      <div class="modal-title">📤 Müşteri Sunumu</div>
+      <div class="modal-x" onclick="closeModal('modal-sunum')">✕</div>
     </div>
-    <div class="modal-body">
-      <div class="info-box">Bu sunum HTML dosyası olarak kaydedilir. Müşteriye WhatsApp veya mail ile gönderebilirsin.</div>
-      <div class="sunum-preview" id="sunum-preview"></div>
-      <button class="btn btn-pr btn-full" onclick="exportSunum()">📥 Sunum HTML İndir</button>
-      <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="closeModal('sunum-modal')">İptal</button>
+    <div class="modal-bd">
+      <div class="info">Aşağıdaki sunum dosyası müşteriye WhatsApp veya mail ile gönderilebilir. Müşteri telefonunda açıp onaylayabilir.</div>
+      <div class="sunum-card" id="sunum-prev"></div>
+      <button class="btn btn-pur btn-full" onclick="downloadSunum()">📥 Sunum Dosyasını İndir</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="closeModal('modal-sunum')">Kapat</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ═══ STATE ═══ */
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
 let projects = [];
-try{ projects = JSON.parse(localStorage.getItem('paprika_ofis') || '[]'); }catch(e){}
-let currentIdx = null;
+try{ projects = JSON.parse(localStorage.getItem('paprika_ofis_v2') || '[]'); }catch(e){}
+let selIdx = null;
+let newSignCount = 0;
 
-/* ═══ INIT ═══ */
-window.onload = () => { updateBadge(); renderDashboard(); renderProjectList(); };
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function save(){ localStorage.setItem('paprika_ofis_v2', JSON.stringify(projects)); updateStats(); }
 
-/* ═══ TOAST ═══ */
 function toast(msg, type='ok'){
-  const t=document.getElementById('toast');
-  t.textContent=(type==='ok'?'✅ ':type==='err'?'❌ ':'ℹ️ ')+msg;
+  const t = document.getElementById('toast');
+  t.textContent = (type==='ok'?'✅ ':type==='err'?'❌ ':'ℹ️ ') + msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+  setTimeout(()=>t.classList.remove('show'), 2800);
 }
 
-/* ═══ PAGE NAV ═══ */
-function switchPage(id){
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+const ST_CSS = {
+  'Keşif Alındı':'st-kesif','Tasarım Bekleniyor':'st-tasarim',
+  'Sunum Gönderildi':'st-sunum','Müşteri Onayladı':'st-onay',
+  'Üretimde':'st-uretim','Montaj Bekliyor':'st-montaj','Tamamlandı':'st-tamam'
+};
+const ST_DOT = {
+  'Keşif Alındı':'#2563eb','Tasarım Bekleniyor':'#7c3aed',
+  'Sunum Gönderildi':'#c97d00','Müşteri Onayladı':'#1db87a',
+  'Üretimde':'#e65100','Montaj Bekliyor':'#c2185b','Tamamlandı':'#1db87a'
+};
+
+function getDims(s){
+  if(s.dims && s.dims.length) return s.dims.map(d=>`${d.w||'?'}×${d.h||'?'}cm${d.adet?' · '+d.adet+' adet':''}`).join(', ');
+  return s.w&&s.h ? `${s.w}×${s.h}cm${s.adet?' · '+s.adet+' adet':''}` : 'Ölçü girilmedi';
+}
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+function goPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    t.classList.toggle('on', t.getAttribute('onclick').includes(id));
+  ['dash','list','new'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('on', id==='p-'+t);
   });
-  if(id==='p-dashboard') renderDashboard();
-  if(id==='p-projects') renderProjectList();
+  if(id==='p-dash') renderDash();
+  if(id==='p-list') renderList();
+  if(id==='p-new') initNewForm();
 }
 
-/* ═══ SAVE ═══ */
-function save(){
-  localStorage.setItem('paprika_ofis', JSON.stringify(projects));
-  updateBadge();
+/* ══════════════════════════════════════════
+   STATS
+══════════════════════════════════════════ */
+function updateStats(){
+  document.getElementById('top-count').textContent = projects.length;
+  document.getElementById('s-total').textContent = projects.length;
+  document.getElementById('s-tasarim').textContent = projects.filter(p=>p.status==='Keşif Alındı'||p.status==='Tasarım Bekleniyor').length;
+  document.getElementById('s-sunum').textContent = projects.filter(p=>p.status==='Sunum Gönderildi').length;
+  document.getElementById('s-onay').textContent = projects.filter(p=>p.status==='Müşteri Onayladı'||p.status==='Üretimde').length;
 }
 
-function updateBadge(){
-  document.getElementById('proj-badge').textContent = projects.length;
-  document.getElementById('st-total').textContent = projects.length;
-  document.getElementById('st-bekliyor').textContent = projects.filter(p=>p.ofisStatus==='Tasarım Yüklendi'||p.ofisStatus==='Sunum Gönderildi').length;
-  document.getElementById('st-onay').textContent = projects.filter(p=>p.ofisStatus==='Müşteri Onayladı').length;
-}
-
-/* ═══ STATUS ═══ */
-const STATUS_LIST = ['Keşif Alındı','Tasarım Yüklendi','Sunum Gönderildi','Müşteri Onayladı','Üretimde','Montaj Bekliyor','Tamamlandı'];
-const STATUS_CSS  = {'Keşif Alındı':'s-olcum','Tasarım Yüklendi':'s-tasarim','Sunum Gönderildi':'s-sunum','Müşteri Onayladı':'s-onay','Üretimde':'s-uretim','Montaj Bekliyor':'s-montaj','Tamamlandı':'s-bitti'};
-const DOT_COLOR   = {'Keşif Alındı':'#2563eb','Tasarım Yüklendi':'#7c3aed','Sunum Gönderildi':'#c97d00','Müşteri Onayladı':'#1db87a','Üretimde':'#e65100','Montaj Bekliyor':'#c2185b','Tamamlandı':'#1db87a'};
-
-/* ═══ DASHBOARD ═══ */
-function renderDashboard(){
-  updateBadge();
-  const list = document.getElementById('dashboard-list');
-  if(!projects.length){ list.innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">Henüz proje yok. Keşif Yükle'den başla.</div></div>'; return; }
-  list.innerHTML = [...projects].reverse().slice(0,8).map((p,ri)=>{
+/* ══════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════ */
+function renderDash(){
+  updateStats();
+  const el = document.getElementById('dash-list');
+  if(!projects.length){ el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">Henüz proje yok. <b>Yeni Proje</b> ekle.</div></div>'; return; }
+  el.innerHTML = [...projects].reverse().slice(0,10).map((p,ri)=>{
     const i = projects.length-1-ri;
-    const st = p.ofisStatus||'Keşif Alındı';
-    return `<div class="proj-row" onclick="openProject(${i});switchPage('p-projects')">
-      <div class="proj-dot" style="background:${DOT_COLOR[st]||'#aaa'}"></div>
-      <div class="proj-info">
-        <div class="proj-name">${p.project||'İsimsiz'}</div>
-        <div class="proj-meta">${p.client||'—'} · ${p.date||''}</div>
+    const st = p.status||'Keşif Alındı';
+    return `<div class="proj-row" onclick="openDetail(${i});goPage('p-list')">
+      <div class="proj-dot" style="background:${ST_DOT[st]||'#aaa'}"></div>
+      <div class="prow-info">
+        <div class="prow-name">${p.project||'İsimsiz'}</div>
+        <div class="prow-sub">${p.client||'—'} · ${p.date||''}</div>
       </div>
-      <div class="proj-status ${STATUS_CSS[st]||''}">${st}</div>
+      <span class="st-pill ${ST_CSS[st]||''}">${st}</span>
     </div>`;
   }).join('');
 }
 
-/* ═══ PROJECT LIST ═══ */
-function renderProjectList(){
-  const q = (document.getElementById('search-input')?.value||'').toLowerCase();
-  const list = document.getElementById('proj-list');
-  if(!projects.length){ list.innerHTML='<div class="empty" style="padding:20px"><div class="empty-ico" style="font-size:24px">📋</div><div class="empty-txt">Proje yok</div></div>'; return; }
-  list.innerHTML = projects.map((p,i)=>{
-    if(q && !((p.project||'').toLowerCase().includes(q)) && !((p.client||'').toLowerCase().includes(q))) return '';
-    const st = p.ofisStatus||'Keşif Alındı';
-    return `<div class="proj-row ${currentIdx===i?'active':''}" onclick="openProject(${i})">
-      <div class="proj-dot" style="background:${DOT_COLOR[st]||'#aaa'}"></div>
-      <div class="proj-info">
-        <div class="proj-name">${p.project||'İsimsiz'}</div>
-        <div class="proj-meta">${p.client||'—'}</div>
+/* ══════════════════════════════════════════
+   PROJECT LIST
+══════════════════════════════════════════ */
+function renderList(){
+  const q = (document.getElementById('q')?.value||'').toLowerCase();
+  const el = document.getElementById('proj-list-inner');
+  if(!projects.length){ el.innerHTML='<div class="empty" style="padding:16px"><div class="empty-ico" style="font-size:24px">📋</div><div class="empty-txt">Proje yok</div></div>'; return; }
+  el.innerHTML = projects.map((p,i)=>{
+    if(q && !(p.project||'').toLowerCase().includes(q) && !(p.client||'').toLowerCase().includes(q)) return '';
+    const st = p.status||'Keşif Alındı';
+    return `<div class="proj-row ${selIdx===i?'sel':''}" onclick="openDetail(${i})">
+      <div class="proj-dot" style="background:${ST_DOT[st]||'#aaa'}"></div>
+      <div class="prow-info">
+        <div class="prow-name">${p.project||'İsimsiz'}</div>
+        <div class="prow-sub">${p.client||'—'}</div>
       </div>
-      <div class="proj-status ${STATUS_CSS[st]||''}">${st}</div>
+      <span class="st-pill ${ST_CSS[st]||''}">${st}</span>
     </div>`;
   }).join('');
 }
 
-/* ═══ OPEN PROJECT ═══ */
-function openProject(i){
-  currentIdx = i;
-  renderProjectList();
+/* ══════════════════════════════════════════
+   DETAIL
+══════════════════════════════════════════ */
+function openDetail(i){
+  selIdx = i;
+  renderList();
   const p = projects[i];
   const col = document.getElementById('detail-col');
 
-  const statusSel = STATUS_LIST.map(s=>`<div class="status-opt ${STATUS_CSS[s]} ${(p.ofisStatus||'Keşif Alındı')===s?'on':''}" onclick="setStatus(${i},'${s}')">${s}</div>`).join('');
+  const stSel = Object.keys(ST_CSS).map(s=>`
+    <div class="st-opt ${ST_CSS[s]} ${(p.status||'Keşif Alındı')===s?'on':''}" data-v="${s}" onclick="setStatus(${i},'${s}')">${s}</div>
+  `).join('');
 
-  const signsHtml = (p.signs||[]).map((s,si)=>{
-    const hasDesign = !!(s.designImg);
-    const dims = s.mrows?.length ? s.mrows.map(r=>`${r.w||'?'}×${r.h||'?'}cm`).join(', ') : (s.w&&s.h?`${s.w}×${s.h}cm`:'Ölçü yok');
-    return `<div class="sign-row" id="signrow-${i}-${si}">
-      <div class="sign-row-top">
-        <div class="sign-num">${si+1}</div>
-        <div style="flex:1">
-          <div class="sign-name">${s.label||s.type||'Tabela '+(si+1)}</div>
-          <div class="sign-dims">${s.type||''} · ${dims}</div>
+  const signsHtml = (p.signs||[]).length
+    ? (p.signs||[]).map((s,si)=>{
+        const hasImg = !!s.designImg;
+        return `<div class="sign-block">
+          <div class="sign-head">
+            <div class="sign-num">${si+1}</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:800;">${s.name||s.type||'Tabela '+(si+1)}</div>
+              <div style="font-size:11px;color:var(--txt3);">${getDims(s)}${s.montaj?' · 📍'+s.montaj:''}</div>
+            </div>
+          </div>
+          <div class="sign-body">
+            <div>
+              ${s.w?`<div style="font-size:12px;margin-bottom:4px;">📐 <b>${s.w}cm</b> G · <b>${s.h||'?'}cm</b> Y ${s.adet?'· <b>'+s.adet+' adet</b>':''}</div>`:''}
+              ${(s.dims||[]).map((d,di)=>`<div style="font-size:12px;background:#f5f5f5;padding:4px 8px;border-radius:6px;margin-bottom:3px;">${di+1}. ${d.w||'?'}×${d.h||'?'}cm ${d.adet?'· '+d.adet+' adet':''} ${d.note||''}</div>`).join('')}
+              ${s.note?`<div style="font-size:12px;color:var(--txt3);margin-top:6px;">📝 ${s.note}</div>`:''}
+              ${s.type?`<div style="font-size:11px;background:var(--pr-bg);color:var(--pr);padding:3px 8px;border-radius:10px;display:inline-block;font-weight:700;margin-top:6px;">${s.type}</div>`:''}
+            </div>
+            <div>
+              <label class="design-box" style="min-height:100px;">
+                ${hasImg?`<img src="${s.designImg}">`:''}
+                <input type="file" accept="image/*" style="display:none" onchange="uploadDesign(${i},${si},this)">
+                <div class="design-box-lbl">${hasImg?'':'🖼<br>Tasarım Yükle'}</div>
+              </label>
+              ${hasImg?`<div class="design-actions">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer;">🔄 Değiştir<input type="file" accept="image/*" style="display:none" onchange="uploadDesign(${i},${si},this)"></label>
+                <button class="btn btn-red btn-sm" onclick="removeDesign(${i},${si})">🗑</button>
+              </div>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--txt3);font-size:13px;padding:8px 0;">Bu projede tabela kaydı yok.</div>';
+
+  const onayHtml = p.onayAd
+    ? `<div class="onay-box">✅ ${p.onayAd} tarafından onaylandı — ${p.onayTarih}</div>`
+    : `<div class="bekliyor-box">⏳ Henüz müşteri onayı alınmadı</div>
+       <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+         <input id="onay-ad" class="inp" placeholder="Müşteri adı soyadı" style="flex:1;">
+         <button class="btn btn-grn" onclick="saveOnay(${i})">✅ Onayla</button>
+       </div>`;
+
+  col.innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div style="font-size:20px;font-weight:900;">${p.project||'İsimsiz'}</div>
+          <div style="font-size:13px;color:var(--txt3);margin-top:3px;">👤 ${p.client||'—'} · 📅 ${p.date||'—'}</div>
+          ${p.address?`<div style="font-size:12px;color:var(--txt3);margin-top:2px;">📍 ${p.address}</div>`:''}
+          ${p.measurer?`<div style="font-size:12px;color:var(--txt3);margin-top:2px;">🔧 Ölçümü Alan: ${p.measurer}</div>`:''}
         </div>
-        ${s.montaj?`<span style="font-size:11px;background:var(--ylw-bg);color:var(--ylw);padding:2px 8px;border-radius:12px;font-weight:700;">📍${s.montaj}</span>`:''}
+        <button class="btn btn-red btn-sm no-print" onclick="deleteProject(${i})">🗑 Sil</button>
       </div>
-      <div class="design-area">
-        <div class="design-preview" id="dpreview-${i}-${si}">
-          ${hasDesign?`<img src="${s.designImg}">`:'<span>Tasarım<br>Yok</span>'}
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
-            🖼 ${hasDesign?'Tasarımı Değiştir':'Tasarım Yükle'}
-            <input type="file" accept="image/*" class="file-input-hidden" onchange="uploadDesign(${i},${si},this)">
-          </label>
-          ${hasDesign?`<button class="btn btn-ghost btn-sm" onclick="removeDesign(${i},${si})">🗑 Kaldır</button>`:''}
-        </div>
+
+      <div class="sec-lbl">Durum</div>
+      <div class="st-sel">${stSel}</div>
+
+      <div class="sec-lbl">🪧 Tabelalar & Tasarımlar</div>
+      ${signsHtml}
+
+      <div class="sec-lbl">✅ Müşteri Onayı</div>
+      ${onayHtml}
+
+      <div class="sec-lbl no-print">📤 İşlemler</div>
+      <div class="actions-bar no-print">
+        <button class="btn btn-pur" onclick="openSunum(${i})">👁 Müşteri Sunumu</button>
+        <button class="btn btn-pr" onclick="uretimPDF(${i})">🖨 Üretim Paketi</button>
+        <button class="btn btn-ghost" onclick="editProject(${i})">✏️ Düzenle</button>
       </div>
     </div>`;
-  }).join('');
-
-  const hasOnay = !!p.onayAd;
-  const onayHtml = hasOnay
-    ? `<div class="onay-badge">✅ ${p.onayAd} — ${p.onayTarih}</div>`
-    : `<div style="font-size:12px;color:var(--txt3);">Henüz onay alınmadı</div>`;
-
-  col.innerHTML = `<div class="card">
-    <div class="det-header">
-      <div>
-        <div class="det-title">${p.project||'İsimsiz Proje'}</div>
-        <div class="det-sub">👤 ${p.client||'—'} · 📅 ${p.date||''}</div>
-        ${p.address?`<div style="font-size:12px;color:var(--txt3);margin-top:4px;">📍 ${p.address}</div>`:''}
-      </div>
-      <button class="btn btn-ghost btn-sm no-print" onclick="deleteProject(${i})" style="color:var(--pr);">🗑 Sil</button>
-    </div>
-
-    <div class="section-title">Proje Durumu</div>
-    <div class="status-sel">${statusSel}</div>
-
-    <div class="section-title">🪧 Tabelalar & Tasarımlar</div>
-    ${signsHtml||'<div style="color:var(--txt3);font-size:13px;">Tabela bilgisi yok</div>'}
-
-    <div class="section-title">✅ Müşteri Onayı</div>
-    <div style="margin-bottom:12px;">${onayHtml}</div>
-    ${!hasOnay?`<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <input id="onay-ad" type="text" placeholder="Müşteri adı soyadı" style="flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
-      <button class="btn btn-grn btn-sm" onclick="kaydetOnay(${i})">✅ Onayla</button>
-    </div>`:''}
-
-    <div class="section-title no-print">📤 Paylaşım & Üretim</div>
-    <div class="grid2 no-print" style="margin-bottom:8px;">
-      <button class="btn btn-pur btn-full" onclick="openSunum(${i})">👁 Müşteri Sunumu</button>
-      <button class="btn btn-pr btn-full" onclick="uretimPDF(${i})">🖨 Üretim PDF</button>
-    </div>
-    <button class="btn btn-ghost btn-full no-print" onclick="exportJSON(${i})">📤 JSON Export (Saha App)</button>
-  </div>`;
 }
 
-/* ═══ STATUS SET ═══ */
-function setStatus(i, st){
-  projects[i].ofisStatus = st;
-  save();
-  openProject(i);
-  toast('Durum güncellendi');
-}
-
-/* ═══ DESIGN UPLOAD ═══ */
-function uploadDesign(projIdx, signIdx, input){
-  const file = input.files[0];
-  if(!file) return;
+/* ══════════════════════════════════════════
+   DESIGN UPLOAD
+══════════════════════════════════════════ */
+function uploadDesign(pi, si, input){
+  const file = input.files[0]; if(!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    projects[projIdx].signs[signIdx].designImg = e.target.result;
-    if(!projects[projIdx].ofisStatus || projects[projIdx].ofisStatus==='Keşif Alındı'){
-      // Check if all signs have design
-      const allHave = projects[projIdx].signs.every(s=>s.designImg);
-      if(allHave) projects[projIdx].ofisStatus = 'Tasarım Yüklendi';
-    }
-    save();
-    openProject(projIdx);
-    toast('Tasarım yüklendi ✓');
+    projects[pi].signs[si].designImg = e.target.result;
+    if(projects[pi].status === 'Keşif Alındı') projects[pi].status = 'Tasarım Bekleniyor';
+    const allHave = (projects[pi].signs||[]).every(s=>s.designImg);
+    if(allHave && projects[pi].status === 'Tasarım Bekleniyor') projects[pi].status = 'Sunum Gönderildi';
+    save(); openDetail(pi); toast('Tasarım yüklendi ✓');
   };
   reader.readAsDataURL(file);
 }
 
-function removeDesign(projIdx, signIdx){
-  delete projects[projIdx].signs[signIdx].designImg;
-  save();
-  openProject(projIdx);
-  toast('Tasarım kaldırıldı');
+function removeDesign(pi, si){
+  delete projects[pi].signs[si].designImg;
+  save(); openDetail(pi); toast('Tasarım kaldırıldı');
 }
 
-/* ═══ ONAY ═══ */
-function kaydetOnay(i){
+/* ══════════════════════════════════════════
+   STATUS / ONAY
+══════════════════════════════════════════ */
+function setStatus(i, st){ projects[i].status=st; save(); openDetail(i); toast('Durum güncellendi'); }
+function selSt(el, selId){ document.getElementById(selId).querySelectorAll('.st-opt').forEach(o=>o.classList.remove('on')); el.classList.add('on'); }
+
+function saveOnay(i){
   const ad = document.getElementById('onay-ad')?.value?.trim();
   if(!ad){ toast('Müşteri adı girin','err'); return; }
   const now = new Date();
   projects[i].onayAd = ad;
   projects[i].onayTarih = now.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  projects[i].ofisStatus = 'Müşteri Onayladı';
-  save();
-  openProject(i);
-  toast('Onay kaydedildi ✓');
+  projects[i].status = 'Müşteri Onayladı';
+  save(); openDetail(i); toast('Onay kaydedildi ✓');
 }
 
-/* ═══ SUNUM MODAL ═══ */
-function openSunum(i){
-  currentIdx = i;
-  const p = projects[i];
-  const prev = document.getElementById('sunum-preview');
-  const items = (p.signs||[]).map(s=>{
-    const dims = s.mrows?.length ? s.mrows.map(r=>`${r.w||'?'}×${r.h||'?'}cm`).join(', ') : (s.w&&s.h?`${s.w}×${s.h}cm`:'');
-    return `<div class="sunum-item">
-      <div class="sunum-item-img">${s.designImg?`<img src="${s.designImg}">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;">🖼</div>'}</div>
-      <div class="sunum-item-info">
-        <div class="sunum-item-name">${s.label||s.type||'Tabela'}</div>
-        <div class="sunum-item-dim">${dims}</div>
+/* ══════════════════════════════════════════
+   DELETE
+══════════════════════════════════════════ */
+function deleteProject(i){
+  if(!confirm('Bu projeyi silmek istediğinden emin misin?')) return;
+  projects.splice(i,1); save(); selIdx=null;
+  document.getElementById('detail-col').innerHTML='<div class="card"><div class="empty"><div class="empty-ico">👈</div><div class="empty-txt">Sol listeden proje seç</div></div></div>';
+  renderList(); toast('Proje silindi');
+}
+
+/* ══════════════════════════════════════════
+   YENİ PROJE FORMU
+══════════════════════════════════════════ */
+let newSigns = [];
+let newSignId = 0;
+
+function initNewForm(){
+  ['n-client','n-project','n-address','n-measurer','n-note'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const dateEl = document.getElementById('n-date');
+  if(dateEl) dateEl.value = new Date().toISOString().slice(0,10);
+  newSigns = [];
+  newSignId = 0;
+  document.getElementById('new-signs-list').innerHTML = '';
+  document.querySelectorAll('#new-st-sel .st-opt').forEach((o,i)=>o.classList.toggle('on',i===0));
+  addNewSign();
+}
+
+function addNewSign(){
+  newSignId++;
+  const id = 'ns-'+newSignId;
+  newSigns.push({_id:id});
+  const el = document.getElementById('new-signs-list');
+  const div = document.createElement('div');
+  div.className = 'sign-block'; div.id = id;
+  div.innerHTML = `
+    <div class="sign-head">
+      <div class="sign-num">${newSigns.length}</div>
+      <div style="flex:1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input class="inp" placeholder="Tabela adı / tipi" id="${id}-name" style="flex:1;min-width:120px;">
+        <button class="btn btn-red btn-sm" onclick="removeNewSign('${id}')">🗑</button>
       </div>
+    </div>
+    <div style="padding:10px 14px;display:grid;grid-template-columns:repeat(3,1fr) 1fr;gap:8px;align-items:end;">
+      <div><label class="lbl">Genişlik (cm)</label><input class="inp" id="${id}-w" placeholder="300" type="number"></div>
+      <div><label class="lbl">Yükseklik (cm)</label><input class="inp" id="${id}-h" placeholder="80" type="number"></div>
+      <div><label class="lbl">Adet</label><input class="inp" id="${id}-adet" placeholder="1" type="number"></div>
+      <div><label class="lbl">Montaj</label><input class="inp" id="${id}-montaj" placeholder="Duvar / Cam..."></div>
+    </div>
+    <div style="padding:0 14px 10px;">
+      <input class="inp" id="${id}-note" placeholder="📝 Tabela notu (isteğe bağlı)">
     </div>`;
-  }).join('');
-  prev.innerHTML = `<div class="sunum-header"><div class="sunum-proj">${p.project||'—'}</div><div class="sunum-client">${p.client||'—'}</div></div><div class="sunum-items">${items}</div>`;
-  document.getElementById('sunum-modal').classList.add('open');
+  el.appendChild(div);
 }
 
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function removeNewSign(id){
+  newSigns = newSigns.filter(s=>s._id!==id);
+  document.getElementById(id)?.remove();
+  document.querySelectorAll('#new-signs-list .sign-num').forEach((el,i)=>el.textContent=i+1);
+}
 
-/* ═══ EXPORT SUNUM HTML ═══ */
-function exportSunum(){
-  const p = projects[currentIdx];
-  const items = (p.signs||[]).map((s,i)=>{
-    const dims = s.mrows?.length ? s.mrows.map(r=>`${r.w||'?'}×${r.h||'?'}cm`).join(', ') : (s.w&&s.h?`${s.w}×${s.h}cm`:'');
-    return `<div style="border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:12px;">
-      <div style="font-weight:800;font-size:15px;margin-bottom:8px;">${i+1}. ${s.label||s.type||'Tabela'} <span style="font-size:12px;color:#888;font-weight:600;">${dims}</span></div>
-      ${s.designImg?`<img src="${s.designImg}" style="width:100%;max-height:300px;object-fit:contain;border-radius:8px;background:#f5f5f5;padding:8px;">`:'<div style="background:#f5f5f5;border-radius:8px;padding:30px;text-align:center;color:#aaa;font-size:13px;">Tasarım görseli yüklenmedi</div>'}
-      ${s.note?`<div style="margin-top:8px;font-size:12px;color:#666;">📝 ${s.note}</div>`:''}
-    </div>`;
-  }).join('');
+function saveNewProject(){
+  const client = document.getElementById('n-client').value.trim();
+  const project = document.getElementById('n-project').value.trim();
+  if(!client && !project){ toast('Müşteri veya proje adı girin','err'); return; }
+  const status = document.querySelector('#new-st-sel .on')?.dataset?.v || 'Keşif Alındı';
+  const date = document.getElementById('n-date').value;
+  const signs = newSigns.map(s=>{
+    const el = document.getElementById(s._id);
+    if(!el) return null;
+    return {
+      name: el.querySelector(`#${s._id}-name`)?.value?.trim()||'',
+      w: el.querySelector(`#${s._id}-w`)?.value?.trim()||'',
+      h: el.querySelector(`#${s._id}-h`)?.value?.trim()||'',
+      adet: el.querySelector(`#${s._id}-adet`)?.value?.trim()||'',
+      montaj: el.querySelector(`#${s._id}-montaj`)?.value?.trim()||'',
+      note: el.querySelector(`#${s._id}-note`)?.value?.trim()||''
+    };
+  }).filter(Boolean);
 
-  const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${p.project||'Sunum'} — Paprika Reklam</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,sans-serif;}body{background:#f5f5f5;padding:16px;}
-.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);max-width:500px;margin:0 auto;}
-.head{background:#e03d2f;color:#fff;padding:20px;}h1{font-size:20px;font-weight:800;}
-.sub{font-size:13px;opacity:.8;margin-top:4px;}.body{padding:16px;}
-.onay-btn{width:100%;background:#1db87a;color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;margin-top:16px;}
-.onay-done{background:#f0fdf4;border:2px solid #1db87a;border-radius:10px;padding:14px;text-align:center;color:#1db87a;font-weight:800;margin-top:16px;display:none;}
+  projects.push({
+    client, project,
+    address: document.getElementById('n-address').value.trim(),
+    measurer: document.getElementById('n-measurer').value.trim(),
+    note: document.getElementById('n-note').value.trim(),
+    date: date ? new Date(date).toLocaleDateString('tr-TR') : new Date().toLocaleDateString('tr-TR'),
+    status, signs,
+    createdAt: new Date().toISOString()
+  });
+  save();
+  toast('Proje kaydedildi ✓');
+  goPage('p-list');
+  openDetail(projects.length-1);
+}
+
+/* ══════════════════════════════════════════
+   EDIT PROJECT (prefill form)
+══════════════════════════════════════════ */
+function editProject(i){
+  const p = projects[i];
+  goPage('p-new');
+  setTimeout(()=>{
+    document.getElementById('n-client').value = p.client||'';
+    document.getElementById('n-project').value = p.project||'';
+    document.getElementById('n-address').value = p.address||'';
+    document.getElementById('n-measurer').value = p.measurer||'';
+    document.getElementById('n-note').value = p.note||'';
+    if(p.date){ try{ document.getElementById('n-date').value = new Date(p.createdAt||Date.now()).toISOString().slice(0,10); }catch(e){} }
+    document.querySelectorAll('#new-st-sel .st-opt').forEach(o=>o.classList.toggle('on', o.dataset.v===p.status));
+    newSigns=[]; newSignId=0; document.getElementById('new-signs-list').innerHTML='';
+    (p.signs||[]).forEach(s=>{
+      addNewSign();
+      const id='ns-'+newSignId;
+      document.getElementById(id+'-name').value=s.name||'';
+      document.getElementById(id+'-w').value=s.w||'';
+      document.getElementById(id+'-h').value=s.h||'';
+      document.getElementById(id+'-adet').value=s.adet||'';
+      document.getElementById(id+'-montaj').value=s.montaj||'';
+      document.getElementById(id+'-note').value=s.note||'';
+    });
+    // Override save to update instead of push
+    const origSave = window.saveNewProject;
+    const btn = document.querySelector('#p-new .btn-grn');
+    btn.textContent = '💾 Değişiklikleri Kaydet';
+    btn.onclick = ()=>{
+      const client=document.getElementById('n-client').value.trim();
+      const project=document.getElementById('n-project').value.trim();
+      if(!client&&!project){toast('Müşteri veya proje adı girin','err');return;}
+      const status=document.querySelector('#new-st-sel .on')?.dataset?.v||p.status;
+      const signs=newSigns.map(s=>{
+        const el=document.getElementById(s._id); if(!el) return null;
+        return { name:el.querySelector('#'+s._id+'-name')?.value?.trim()||'', w:el.querySelector('#'+s._id+'-w')?.value?.trim()||'', h:el.querySelector('#'+s._id+'-h')?.value?.trim()||'', adet:el.querySelector('#'+s._id+'-adet')?.value?.trim()||'', montaj:el.querySelector('#'+s._id+'-montaj')?.value?.trim()||'', note:el.querySelector('#'+s._id+'-note')?.value?.trim()||'', designImg:p.signs[newSigns.indexOf(s)]?.designImg||undefined };
+      }).filter(Boolean);
+      projects[i]={...projects[i],client,project,address:document.getElementById('n-address').value.trim(),measurer:document.getElementById('n-measurer').value.trim(),note:document.getElementById('n-note').value.trim(),status,signs};
+      save(); toast('Güncellendi ✓'); goPage('p-list'); openDetail(i);
+      btn.textContent='💾 Projeyi Kaydet'; btn.onclick=saveNewProject;
+    };
+  }, 50);
+}
+
+/* ══════════════════════════════════════════
+   SUNUM
+══════════════════════════════════════════ */
+let sunumIdx = null;
+function openSunum(i){
+  sunumIdx = i;
+  const p = projects[i];
+  const items = (p.signs||[]).map(s=>`
+    <div class="sunum-item">
+      <div class="sunum-thumb">${s.designImg?`<img src="${s.designImg}">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">🖼</div>'}</div>
+      <div><div class="sunum-name">${s.name||'Tabela'}</div><div class="sunum-dim">${getDims(s)}</div></div>
+    </div>`).join('');
+  document.getElementById('sunum-prev').innerHTML=`
+    <div class="sunum-hd"><div class="sunum-proj">${p.project||'—'}</div><div class="sunum-sub">👤 ${p.client||'—'} · 📅 ${p.date||''}</div></div>
+    <div class="sunum-items">${items}</div>`;
+  document.getElementById('modal-sunum').classList.add('open');
+}
+
+function downloadSunum(){
+  const p = projects[sunumIdx];
+  const items = (p.signs||[]).map((s,i)=>`
+    <div style="border:1px solid #eee;border-radius:12px;padding:16px;margin-bottom:14px;break-inside:avoid;">
+      <div style="font-size:15px;font-weight:800;margin-bottom:10px;">${i+1}. ${s.name||'Tabela'} <span style="font-size:12px;color:#888;font-weight:600;">${getDims(s)}</span></div>
+      ${s.designImg?`<img src="${s.designImg}" style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;background:#f9f9f9;padding:8px;border:1px solid #eee;">`:'<div style="background:#f5f5f5;border-radius:8px;padding:40px;text-align:center;color:#bbb;font-size:13px;">Tasarım görseli henüz eklenmedi</div>'}
+      ${s.note?`<div style="margin-top:8px;font-size:12px;color:#666;background:#fffbf0;padding:8px 10px;border-radius:6px;">📝 ${s.note}</div>`:''}
+    </div>`).join('');
+
+  const html=`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${p.project||'Sunum'}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Nunito',sans-serif;}
+body{background:#f5f5f5;padding:16px;}
+.wrap{max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.hd{background:#e03d2f;color:#fff;padding:22px 20px;}
+.hd h1{font-size:20px;font-weight:900;}
+.hd p{font-size:13px;opacity:.8;margin-top:4px;}
+.body{padding:18px;}
+.note{background:#eff6ff;border-radius:10px;padding:12px 14px;font-size:13px;color:#1d4ed8;margin-bottom:16px;line-height:1.6;}
+.onay-inp{width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:14px;margin-bottom:10px;font-family:inherit;}
+.onay-btn{width:100%;background:#1db87a;color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;}
+.onay-done{background:#f0fdf4;border:2px solid #1db87a;border-radius:10px;padding:16px;text-align:center;color:#1db87a;font-weight:800;font-size:15px;display:none;}
 </style></head><body>
-<div class="card">
-  <div class="head"><h1>${p.project||'Proje'}</h1><div class="sub">👤 ${p.client||'—'} · 📅 ${p.date||''}</div></div>
+<div class="wrap">
+  <div class="hd"><h1>${p.project||'Proje'}</h1><p>👤 ${p.client||'—'} &nbsp;·&nbsp; 📅 ${p.date||''}</p></div>
   <div class="body">
-    <p style="font-size:13px;color:#666;margin-bottom:14px;">Sayın müşterimiz, hazırlanan tasarımları inceleyerek onaylayabilirsiniz.</p>
+    <div class="note">Sayın müşterimiz, hazırlanan tasarımları inceleyip onaylayabilirsiniz. Onayladıktan sonra üretim süreci başlayacaktır.</div>
     ${items}
-    <div id="onay-form">
-      <input type="text" id="musteri-ad" placeholder="Adınız Soyadınız" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:8px;">
+    <div id="onay-form" style="margin-top:20px;">
+      <input class="onay-inp" id="musteri-ad" placeholder="Adınız Soyadınız">
       <button class="onay-btn" onclick="onayla()">✅ Tasarımları Onaylıyorum</button>
     </div>
-    <div class="onay-done" id="onay-done">✅ Onayınız alındı. Teşekkür ederiz!</div>
+    <div class="onay-done" id="onay-done"></div>
   </div>
 </div>
 <script>
@@ -534,158 +688,80 @@ function onayla(){
   const ad=document.getElementById('musteri-ad').value.trim();
   if(!ad){alert('Lütfen adınızı girin.');return;}
   document.getElementById('onay-form').style.display='none';
-  document.getElementById('onay-done').style.display='block';
-  document.getElementById('onay-done').textContent='✅ '+ad+' tarafından onaylandı — '+new Date().toLocaleString('tr-TR');
+  const done=document.getElementById('onay-done');
+  done.style.display='block';
+  done.innerHTML='✅ <b>'+ad+'</b> tarafından onaylandı<br><span style="font-size:12px;font-weight:600;">'+new Date().toLocaleString('tr-TR')+'</span>';
 }
 <\/script>
 </body></html>`;
 
-  const blob = new Blob([html], {type:'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (p.client||'musteri').replace(/[^a-z0-9]/gi,'_')+'_sunum.html';
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(p.client||'musteri').replace(/[^a-z0-9]/gi,'_')+'_sunum.html';
   a.click();
-  closeModal('sunum-modal');
-  toast('Sunum HTML indirildi ✓');
+  closeModal('modal-sunum');
+  toast('Sunum dosyası indirildi ✓');
 }
 
-/* ═══ ÜRETİM PDF ═══ */
+/* ══════════════════════════════════════════
+   ÜRETİM PAKETİ
+══════════════════════════════════════════ */
 function uretimPDF(i){
   const p = projects[i];
-  const signs = (p.signs||[]).map((s,si)=>{
-    const dims = s.mrows?.length
-      ? s.mrows.map((r,ri)=>`<tr><td>${ri+1}</td><td>${r.w||'?'}</td><td>${r.h||'?'}</td><td>${r.d||'—'}</td><td>${r.note||'—'}</td></tr>`).join('')
-      : `<tr><td>1</td><td>${s.w||'?'}</td><td>${s.h||'?'}</td><td>${s.d||'—'}</td><td>—</td></tr>`;
-    return `<div style="break-inside:avoid;margin-bottom:24px;border:1px solid #ddd;border-radius:8px;overflow:hidden;">
-      <div style="background:#e03d2f;color:#fff;padding:10px 14px;font-weight:800;font-size:14px;">${si+1}. ${s.label||s.type||'Tabela'} — ${s.type||''}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#888;margin-bottom:6px;">ÖLÇÜLER</div>
-          <table style="width:100%;border-collapse:collapse;font-size:12px;">
-            <tr style="background:#f5f5f5;"><th style="padding:4px;text-align:left;">#</th><th>G(cm)</th><th>Y(cm)</th><th>Adet</th><th>Not</th></tr>
-            ${dims}
-          </table>
-          ${s.montaj?`<div style="margin-top:8px;font-size:12px;background:#fffbf0;padding:6px 10px;border-radius:6px;">📍 Montaj: <b>${s.montaj}</b></div>`:''}
+  const rows = (p.signs||[]).map((s,si)=>`
+    <div style="break-inside:avoid;margin-bottom:20px;border:1.5px solid #ddd;border-radius:8px;overflow:hidden;">
+      <div style="background:#e03d2f;color:#fff;padding:10px 14px;font-size:14px;font-weight:800;">${si+1}. ${s.name||'Tabela '+(si+1)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+        <div style="padding:12px;border-right:1px solid #eee;">
+          <div style="font-size:11px;font-weight:800;color:#888;margin-bottom:8px;">ÖLÇÜLER & BİLGİLER</div>
+          ${s.w||s.h?`<div style="font-size:13px;font-weight:700;margin-bottom:6px;">📐 ${s.w||'?'}cm × ${s.h||'?'}cm ${s.adet?'— <b>'+s.adet+' adet</b>':''}</div>`:''}
+          ${(s.dims||[]).map((d,di)=>`<div style="font-size:12px;padding:3px 8px;background:#f5f5f5;border-radius:4px;margin-bottom:3px;">${di+1}. ${d.w||'?'}×${d.h||'?'}cm ${d.adet?'· '+d.adet+' adet':''} ${d.note||''}</div>`).join('')}
+          ${s.montaj?`<div style="margin-top:6px;font-size:12px;background:#fffbf0;padding:5px 8px;border-radius:4px;">📍 Montaj: <b>${s.montaj}</b></div>`:''}
           ${s.note?`<div style="margin-top:6px;font-size:12px;color:#666;">📝 ${s.note}</div>`:''}
         </div>
-        <div>
-          ${s.designImg?`<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:6px;">ONAYLANAN TASARIM</div><img src="${s.designImg}" style="width:100%;max-height:180px;object-fit:contain;border:1px solid #eee;border-radius:6px;background:#f9f9f9;">`:'<div style="background:#f5f5f5;border-radius:6px;padding:30px;text-align:center;color:#aaa;font-size:12px;">Tasarım görseli yok</div>'}
+        <div style="padding:12px;">
+          <div style="font-size:11px;font-weight:800;color:#888;margin-bottom:8px;">ONAYLANAN TASARIM</div>
+          ${s.designImg?`<img src="${s.designImg}" style="width:100%;max-height:200px;object-fit:contain;border:1px solid #eee;border-radius:6px;background:#f9f9f9;">`:
+          '<div style="background:#f5f5f5;border-radius:6px;padding:30px 0;text-align:center;color:#bbb;font-size:12px;">Tasarım görseli eklenmedi</div>'}
         </div>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 
-  const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
-<title>Üretim Paketi — ${p.project}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
-body{padding:20px;color:#1a1a1a;}
-table td,table th{padding:5px 8px;border:1px solid #ddd;text-align:center;}
-@media print{body{padding:10px;}}
-</style></head><body>
-<div style="border:2px solid #e03d2f;border-radius:8px;padding:14px 16px;margin-bottom:20px;">
-  <div style="font-size:20px;font-weight:900;color:#e03d2f;">📋 ÜRETİM PAKETİ</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:13px;">
-    <div><b>Müşteri:</b> ${p.client||'—'}</div>
-    <div><b>Proje:</b> ${p.project||'—'}</div>
-    <div><b>Adres:</b> ${p.address||p.gps||'—'}</div>
-    <div><b>Keşif Tarihi:</b> ${p.date||'—'}</div>
-    <div><b>Ölçümü Alan:</b> ${p.measurer||'—'}</div>
-    <div><b>Müşteri Onayı:</b> ${p.onayAd?'✅ '+p.onayAd+' ('+p.onayTarih+')':'⏳ Bekleniyor'}</div>
-  </div>
+  const html=`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
+<title>Üretim — ${p.project}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}body{padding:20px;color:#1a1a1a;font-size:13px;}
+table{border-collapse:collapse;width:100%;}td,th{border:1px solid #ddd;padding:5px 8px;}
+@media print{body{padding:10px;}}</style></head><body>
+<div style="border:2px solid #e03d2f;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+  <div style="grid-column:1/-1;font-size:18px;font-weight:900;color:#e03d2f;margin-bottom:8px;">📋 ÜRETİM PAKETİ</div>
+  <div><b>Müşteri:</b> ${p.client||'—'}</div>
+  <div><b>Proje:</b> ${p.project||'—'}</div>
+  <div><b>Adres:</b> ${p.address||'—'}</div>
+  <div><b>Ölçümü Alan:</b> ${p.measurer||'—'}</div>
+  <div><b>Keşif Tarihi:</b> ${p.date||'—'}</div>
+  <div><b>Müşteri Onayı:</b> ${p.onayAd?'✅ '+p.onayAd+' ('+p.onayTarih+')':'⏳ Henüz alınmadı'}</div>
+  ${p.note?`<div style="grid-column:1/-1;margin-top:4px;"><b>Not:</b> ${p.note}</div>`:''}
 </div>
-${signs}
-<div style="margin-top:20px;border-top:2px dashed #ddd;padding-top:12px;font-size:11px;color:#aaa;text-align:center;">
-  Paprika Reklam — Üretim Paketi · ${new Date().toLocaleDateString('tr-TR')}
+${rows}
+<div style="margin-top:16px;border-top:2px dashed #ddd;padding-top:10px;font-size:10px;color:#aaa;text-align:center;">
+  Paprika Reklam Ofis Paneli · Üretim Paketi · ${new Date().toLocaleDateString('tr-TR')}
 </div>
 <script>window.onload=()=>window.print();<\/script>
 </body></html>`;
 
-  const blob = new Blob([html], {type:'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'uretim_'+(p.client||'proje').replace(/[^a-z0-9]/gi,'_')+'.html';
-  a.click();
-  toast('Üretim paketi indirildi ✓');
-}
-
-/* ═══ JSON IMPORT ═══ */
-function importFile(input){
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('json-paste').value = e.target.result;
-    importJSON();
-  };
-  reader.readAsText(file);
-}
-
-function importJSON(){
-  const txt = document.getElementById('json-paste').value.trim();
-  if(!txt){ toast('JSON boş','err'); return; }
-  try{
-    let data = JSON.parse(txt);
-    if(!Array.isArray(data)) data=[data];
-    let added=0;
-    data.forEach(p=>{
-      if(!p.client && !p.project) return;
-      if(!p.ofisStatus) p.ofisStatus='Keşif Alındı';
-      projects.push(p);
-      added++;
-    });
-    save();
-    renderProjectList();
-    document.getElementById('json-paste').value='';
-    toast(added+' proje yüklendi ✓');
-    switchPage('p-projects');
-  }catch(e){ toast('Geçersiz JSON formatı','err'); }
-}
-
-/* ═══ MANUEL EKLE ═══ */
-function addManual(){
-  const client=document.getElementById('m-client').value.trim();
-  const project=document.getElementById('m-project').value.trim();
-  if(!client&&!project){ toast('Müşteri veya proje adı girin','err'); return; }
-  const signCount=parseInt(document.getElementById('m-signs').value)||1;
-  const signs=[];
-  for(let i=0;i<signCount;i++) signs.push({label:'Tabela '+(i+1),type:'',w:'',h:'',d:''});
-  const now=new Date();
-  projects.push({
-    client,project,
-    address:document.getElementById('m-address').value.trim(),
-    signs,
-    date:now.toLocaleDateString('tr-TR'),
-    ofisStatus:'Keşif Alındı'
-  });
-  save();
-  ['m-client','m-project','m-address','m-signs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  toast('Proje eklendi ✓');
-  switchPage('p-projects');
-  openProject(projects.length-1);
-}
-
-/* ═══ DELETE ═══ */
-function deleteProject(i){
-  if(!confirm('Bu projeyi silmek istediğinden emin misin?')) return;
-  projects.splice(i,1);
-  save();
-  currentIdx=null;
-  document.getElementById('detail-col').innerHTML='<div class="card"><div class="empty"><div class="empty-ico">👈</div><div class="empty-txt">Soldaki listeden bir proje seç</div></div></div>';
-  renderProjectList();
-  renderDashboard();
-  toast('Proje silindi');
-}
-
-/* ═══ JSON EXPORT ═══ */
-function exportJSON(i){
-  const p=projects[i];
-  const blob=new Blob([JSON.stringify([p],null,2)],{type:'application/json'});
+  const blob=new Blob([html],{type:'text/html'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=(p.client||'proje').replace(/[^a-z0-9]/gi,'_')+'_export.json';
+  a.download='uretim_'+(p.client||'proje').replace(/[^a-z0-9]/gi,'_')+'.html';
   a.click();
-  toast('JSON export edildi ✓');
+  toast('Üretim paketi hazırlandı ✓');
 }
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+window.onload = ()=>{ updateStats(); renderDash(); };
 </script>
 </body>
 </html>
