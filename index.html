@@ -246,8 +246,8 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;}
       <div class="pdf-upload-zone" id="pdf-zone">
         <input type="file" accept="application/pdf" onchange="loadPDF(this)">
         <div class="pdf-ico">📄</div>
-        <div class="pdf-upload-txt">Keşif PDF'ini buraya sürükle veya tıkla</div>
-        <div class="pdf-upload-sub">Saha uygulamasından gelen PDF · bilgiler otomatik doldurulur</div>
+        <div class="pdf-upload-txt">Kesif PDF dosyasini surukle veya tikla</div>
+        <div class="pdf-upload-sub">Saha uygulamasindan gelen PDF - bilgiler otomatik doldurulur</div>
       </div>
       <div id="pdf-status" style="display:none;" class="info-grn">✅ PDF okundu — alanlar dolduruldu. İstersen aşağıdan düzenleyebilirsin.</div>
       <div id="pdf-raw" class="pdf-text-box"></div>
@@ -498,102 +498,86 @@ function deleteProject(i){
 async function loadPDF(input){
   const file=input.files[0]; if(!file) return;
   const zone=document.getElementById('pdf-zone');
-  zone.querySelector('.pdf-upload-txt').textContent='⏳ PDF okunuyor...';
+  zone.querySelector('.pdf-upload-txt').textContent='Okunuyor...';
   try{
-    const arrayBuffer=await file.arrayBuffer();
-    const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
     let fullText='';
     for(let i=1;i<=Math.min(pdf.numPages,4);i++){
       const page=await pdf.getPage(i);
-      const content=await page.getTextContent();
-      fullText+=content.items.map(it=>it.str).join(' ')+'
-';
+      const tc=await page.getTextContent();
+      fullText+=tc.items.map(function(it){return it.str;}).join(' ')+'  ';
     }
-    // Show raw text (debug)
     const rawEl=document.getElementById('pdf-raw');
     rawEl.textContent=fullText.slice(0,600)+'...';
     rawEl.style.display='block';
-
-    // ── Otomatik alan doldurma ──
     fillFromPDFText(fullText);
-
-    zone.querySelector('.pdf-upload-txt').textContent='✅ '+file.name;
-    zone.querySelector('.pdf-upload-sub').textContent='PDF başarıyla okundu';
+    zone.querySelector('.pdf-upload-txt').textContent='\u2705 '+file.name;
+    zone.querySelector('.pdf-upload-sub').textContent='PDF basariyla okundu';
     zone.style.borderColor='var(--grn)';
     zone.style.background='var(--grn-bg)';
     document.getElementById('pdf-status').style.display='block';
-    toast('PDF okundu, alanlar dolduruldu ✓');
+    toast('PDF okundu, alanlar dolduruldu');
   }catch(e){
-    zone.querySelector('.pdf-upload-txt').textContent='❌ PDF okunamadı';
+    zone.querySelector('.pdf-upload-txt').textContent='\u274c PDF okunamadi';
     zone.querySelector('.pdf-upload-sub').textContent=e.message;
-    toast('PDF okuma hatası: '+e.message,'err');
+    toast('PDF okuma hatasi: '+e.message,'err');
   }
 }
 
 function fillFromPDFText(text){
-  const lines=text.split(/[
-]+/).map(l=>l.trim()).filter(Boolean);
-  const full=text.replace(/\s+/g,' ');
+  var full=text.replace(/\s+/g,' ');
 
-  function after(keyword){
-    const patterns=[
-      new RegExp(keyword+'[:\s]+([^\n|·]+)','i'),
-      new RegExp(keyword+'\s*[:\-]?\s*(.+?)(?:\s{2,}|$)','i')
-    ];
-    for(const re of patterns){ const m=full.match(re); if(m&&m[1]&&m[1].trim().length>1) return m[1].trim(); }
-    return '';
+  function after(kw){
+    var re=new RegExp(kw+'[:\\s]+([^|]+?)(?:\\s{2,}|$)','i');
+    var m=full.match(re);
+    return (m&&m[1]&&m[1].trim().length>1)?m[1].trim():'';
   }
 
-  // Müşteri
-  const client=after('Müşteri')||after('Firma')||after('Client')||'';
+  var client=after('Musteri')||after('Firma')||after('Client')||'';
   if(client) document.getElementById('n-client').value=client.slice(0,60);
 
-  // Proje
-  const proj=after('Proje')||after('İş Adı')||after('Konu')||'';
+  var proj=after('Proje')||after('Is Adi')||after('Konu')||'';
   if(proj) document.getElementById('n-project').value=proj.slice(0,60);
 
-  // Adres
-  const addr=after('Adres')||after('Konum')||after('Lokasyon')||'';
+  var addr=after('Adres')||after('Konum')||after('Lokasyon')||'';
   if(addr) document.getElementById('n-address').value=addr.slice(0,120);
 
-  // Ölçümü alan
-  const meas=after('Ölçümü Alan')||after('Saha')||after('Yetkili')||'';
+  var meas=after('Olcumu Alan')||after('Saha')||after('Yetkili')||'';
   if(meas) document.getElementById('n-measurer').value=meas.slice(0,50);
 
-  // Tarih — çeşitli formatlar
-  const dateMatch=full.match(/(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/);
+  var dateMatch=full.match(/(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/);
   if(dateMatch){
-    const parts=dateMatch[1].split(/[.\-\/]/);
+    var parts=dateMatch[1].split(/[.\-\/]/);
     try{
-      const d=new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+      var d=new Date(parts[2]+'-'+parts[1]+'-'+parts[0]);
       if(!isNaN(d)) document.getElementById('n-date').value=d.toISOString().slice(0,10);
-    }catch(e){}
+    }catch(e2){}
   }
 
-  // Not
-  const note=after('Not')||after('Açıklama')||'';
+  var note=after('Not')||after('Aciklama')||'';
   if(note) document.getElementById('n-note').value=note.slice(0,200);
 
-  // Tabelaları bul — PDF'deki ölçü satırlarını parse et
-  // Format: "Kompozit Tabela 300 x 80" veya "300×80 cm" satırları
-  const signLines=lines.filter(l=>/\d+\s*[x×X*]\s*\d+/.test(l));
+  // Olculu satirlari bul: "300 x 80" veya "300x80"
+  var signLines=[];
+  var dimRe=/\d+\s*[xX\u00d7\*]\s*\d+/g;
+  var allLines=full.split(/\s{3,}|\n/);
+  allLines.forEach(function(l){ if(dimRe.test(l)) signLines.push(l.trim()); dimRe.lastIndex=0; });
+
   if(signLines.length>0){
-    newSigns=[]; newSignId=0;
+    newSigns=[]; newSignIdCounter=0;
     document.getElementById('new-signs-list').innerHTML='';
-    signLines.slice(0,10).forEach(line=>{
+    signLines.slice(0,10).forEach(function(line){
       addNewSign();
-      const id='ns-'+newSignId;
-      // Ölçü
-      const dimMatch=line.match(/(\d+)\s*[x×X*]\s*(\d+)/);
-      if(dimMatch){
-        document.getElementById(id+'-w').value=dimMatch[1];
-        document.getElementById(id+'-h').value=dimMatch[2];
+      var id='ns-'+newSignIdCounter;
+      var dm=line.match(/(\d+)\s*[xX\u00d7\*]\s*(\d+)/);
+      if(dm){
+        document.getElementById(id+'-w').value=dm[1];
+        document.getElementById(id+'-h').value=dm[2];
       }
-      // Adet
-      const adetMatch=line.match(/(\d+)\s*adet/i);
-      if(adetMatch) document.getElementById(id+'-adet').value=adetMatch[1];
-      // İsim — ölçü kısmını çıkar, kalan metin
-      const nameRaw=line.replace(/\d+\s*[x×X*]\s*\d+\s*(cm)?/gi,'').replace(/\d+\s*adet/gi,'').replace(/cm/gi,'').trim();
+      var am=line.match(/(\d+)\s*adet/i);
+      if(am) document.getElementById(id+'-adet').value=am[1];
+      var nameRaw=line.replace(/\d+\s*[xX\u00d7\*]\s*\d+\s*(cm)?/gi,'').replace(/\d+\s*adet/gi,'').replace(/cm/gi,'').trim();
       if(nameRaw.length>1) document.getElementById(id+'-name').value=nameRaw.slice(0,50);
     });
   }
@@ -609,8 +593,8 @@ function initNewForm(){
   document.querySelectorAll('#new-st-sel .st-opt').forEach((o,i)=>o.classList.toggle('on',i===0));
   const btn=document.getElementById('save-btn'); btn.textContent='💾 Projeyi Kaydet'; btn.onclick=saveNewProject;
   const zone=document.getElementById('pdf-zone');
-  zone.querySelector('.pdf-upload-txt').textContent='Keşif PDF'ini buraya sürükle veya tıkla';
-  zone.querySelector('.pdf-upload-sub').textContent='Saha uygulamasından gelen PDF · bilgiler otomatik doldurulur';
+  zone.querySelector('.pdf-upload-txt').textContent='Kesif PDF dosyasini surukle veya tikla';
+  zone.querySelector('.pdf-upload-sub').textContent='Saha uygulamasindan gelen PDF - bilgiler otomatik doldurulur';
   zone.style.borderColor=''; zone.style.background='';
   document.getElementById('pdf-status').style.display='none';
   document.getElementById('pdf-raw').style.display='none';
@@ -840,7 +824,7 @@ ${rows}
   toast('Üretim & Keşif Paketi hazırlandı ✓');
 }
 
-window.onload=()=>{ updateStats(); renderDash(); };
+
 </script>
 </body>
 </html>
