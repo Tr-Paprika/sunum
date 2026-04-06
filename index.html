@@ -292,21 +292,6 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;}
 
 </div><!-- /main -->
 
-<!-- SUNUM MODAL -->
-<div class="modal-bg" id="modal-sunum">
-  <div class="modal">
-    <div class="modal-hd">
-      <div class="modal-title">📤 Müşteri Sunumu</div>
-      <div class="modal-x" onclick="closeModal('modal-sunum')">✕</div>
-    </div>
-    <div class="modal-bd">
-      <div class="info">Müşteriye WhatsApp veya mail ile gönder. Müşteri telefonunda açıp onaylayabilir.</div>
-      <div class="sunum-card" id="sunum-prev"></div>
-      <button class="btn btn-pur btn-full" onclick="downloadSunum()">📥 Sunum Dosyasını İndir</button>
-      <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="closeModal('modal-sunum')">Kapat</button>
-    </div>
-  </div>
-</div>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -364,10 +349,17 @@ function renderDash(){
   el.innerHTML=[...projects].reverse().slice(0,10).map((p,ri)=>{
     const i=projects.length-1-ri;
     const st=p.status||'Keşif Alındı';
-    return `<div class="proj-row" onclick="openDetail(${i});goPage('p-list')">
-      <div class="proj-dot" style="background:${ST_DOT[st]||'#aaa'}"></div>
-      <div class="prow-info"><div class="prow-name">${p.project||'İsimsiz'}</div><div class="prow-sub">${p.client||'—'} · ${p.date||''}</div></div>
-      <span class="st-pill ${ST_CSS[st]||''}">${st}</span>
+    return `<div class="proj-row" style="cursor:default;padding:8px 12px;">
+      <div class="proj-dot" style="background:${ST_DOT[st]||'#aaa'};flex-shrink:0;" onclick="openDetail(${i});goPage('p-list')"></div>
+      <div class="prow-info" style="cursor:pointer;" onclick="openDetail(${i});goPage('p-list')">
+        <div class="prow-name">${p.project||'İsimsiz'}</div>
+        <div class="prow-sub">${p.client||'—'} · ${p.date||''}</div>
+      </div>
+      <span class="st-pill ${ST_CSS[st]||''}" onclick="openDetail(${i});goPage('p-list')" style="cursor:pointer;">${st}</span>
+      <div style="display:flex;gap:5px;margin-left:6px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" style="padding:4px 9px;font-size:11px;" onclick="editProject(${i})">✏️</button>
+        <button class="btn btn-red btn-sm" style="padding:4px 9px;font-size:11px;" onclick="dashDelete(${i})">🗑</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -451,7 +443,6 @@ function openDetail(i){
     <div class="sec-lbl">✅ Müşteri Onayı</div>
     ${onayHtml}
     <div class="actions-bar no-print">
-      <button class="btn btn-pur" onclick="openSunum(${i})">👁 Müşteri Sunumu</button>
       <button class="btn btn-pr" onclick="uretimPDF(${i})">🖨 Üretim & Keşif Paketi</button>
       <button class="btn btn-ghost" onclick="editProject(${i})">✏️ Düzenle</button>
     </div>
@@ -487,6 +478,13 @@ function saveOnay(i){
 }
 
 /* ══ DELETE ══ */
+function dashDelete(i){
+  const p=projects[i];
+  if(!confirm((p.project||'Bu proje')+' silinsin mi?')) return;
+  projects.splice(i,1); save();
+  selIdx=null; renderDash(); toast('Proje silindi');
+}
+
 function deleteProject(i){
   if(!confirm('Bu projeyi silmek istediğinden emin misin?')) return;
   projects.splice(i,1); save(); selIdx=null;
@@ -526,59 +524,120 @@ async function loadPDF(input){
 }
 
 function fillFromPDFText(text){
-  var full=text.replace(/\s+/g,' ');
+  // Paprika Kesif PDF formatina ozel parser
+  // Boslukları normalleştir ama satir yapısını koru
+  var lines = text.split(/\s{3,}|\n/).map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+  var full = text.replace(/\s+/g,' ');
 
-  function after(kw){
-    var re=new RegExp(kw+'[:\\s]+([^|]+?)(?:\\s{2,}|$)','i');
-    var m=full.match(re);
-    return (m&&m[1]&&m[1].trim().length>1)?m[1].trim():'';
+  // Yardimci: bir etiketin hemen ardındaki değeri al
+  function afterLabel(lbl){
+    var re = new RegExp(lbl+'[:\\s]*([^]+?)(?=\\s{2,}|$)','i');
+    var m = full.match(re);
+    return (m&&m[1])?m[1].trim().slice(0,120):'';
   }
 
-  var client=after('Musteri')||after('Firma')||after('Client')||'';
-  if(client) document.getElementById('n-client').value=client.slice(0,60);
+  // Müşteri
+  var client = afterLabel('Müsteri')   || afterLabel('Musteri')   ||
+               afterLabel('Müşteri')   || afterLabel('Firma')     || '';
+  if(client) document.getElementById('n-client').value = client.split(/\s{2,}/)[0].slice(0,60);
 
-  var proj=after('Proje')||after('Is Adi')||after('Konu')||'';
-  if(proj) document.getElementById('n-project').value=proj.slice(0,60);
+  // Proje
+  var proj = afterLabel('Proje Adi')   || afterLabel('Proje Adı') ||
+             afterLabel('Proje')       || afterLabel('Is Adi')    || '';
+  if(proj) document.getElementById('n-project').value = proj.split(/\s{2,}/)[0].slice(0,60);
 
-  var addr=after('Adres')||after('Konum')||after('Lokasyon')||'';
-  if(addr) document.getElementById('n-address').value=addr.slice(0,120);
+  // Adres/Konum
+  var addr = afterLabel('Konum')       || afterLabel('Adres')     ||
+             afterLabel('GPS')         || '';
+  if(addr) document.getElementById('n-address').value = addr.split(/\s{2,}/)[0].slice(0,120);
 
-  var meas=after('Olcumu Alan')||after('Saha')||after('Yetkili')||'';
-  if(meas) document.getElementById('n-measurer').value=meas.slice(0,50);
+  // Ölçümü Alan
+  var meas = afterLabel('Olcum Alan')  || afterLabel('Ölçüm Alan')||
+             afterLabel('Olcumu Alan') || afterLabel('Alan Kisi') || '';
+  if(meas) document.getElementById('n-measurer').value = meas.split(/\s{2,}/)[0].slice(0,50);
 
-  var dateMatch=full.match(/(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/);
+  // Tarih — DD.MM.YYYY veya DD/MM/YYYY
+  var dateMatch = full.match(/(\d{2}[.\/\-]\d{2}[.\/\-]\d{4})/);
   if(dateMatch){
-    var parts=dateMatch[1].split(/[.\-\/]/);
+    var parts = dateMatch[1].split(/[.\/\-]/);
     try{
-      var d=new Date(parts[2]+'-'+parts[1]+'-'+parts[0]);
-      if(!isNaN(d)) document.getElementById('n-date').value=d.toISOString().slice(0,10);
+      var d = new Date(parts[2]+'-'+parts[1]+'-'+parts[0]);
+      if(!isNaN(d)) document.getElementById('n-date').value = d.toISOString().slice(0,10);
     }catch(e2){}
   }
 
-  var note=after('Not')||after('Aciklama')||'';
-  if(note) document.getElementById('n-note').value=note.slice(0,200);
+  // Not
+  var note = afterLabel('Genel Saha Notu') || afterLabel('Genel Not') ||
+             afterLabel('Not')             || '';
+  if(note) document.getElementById('n-note').value = note.slice(0,200);
 
-  // Olculu satirlari bul: "300 x 80" veya "300x80"
-  var signLines=[];
-  var dimRe=/\d+\s*[xX\u00d7\*]\s*\d+/g;
-  var allLines=full.split(/\s{3,}|\n/);
-  allLines.forEach(function(l){ if(dimRe.test(l)) signLines.push(l.trim()); dimRe.lastIndex=0; });
+  // ── Tabelaları bul ──
+  // Paprika PDF'de tabela blokları "X. ETİKET" ile başlar
+  // Satırlarda "WxH cm" veya "W / H" formatı var
+  var signBlocks = [];
+  var currentBlock = null;
 
-  if(signLines.length>0){
+  lines.forEach(function(line){
+    // Tabela başlığı: "1. Tabela 1" veya "1. Ana Giris"
+    var headMatch = line.match(/^(\d+)\.\s+(.+)/);
+    if(headMatch && !line.match(/\d+\.\s+\d/)){
+      if(currentBlock) signBlocks.push(currentBlock);
+      currentBlock = {name: headMatch[2].trim(), type:'', w:'', h:'', adet:'', montaj:'', note:''};
+      return;
+    }
+    if(!currentBlock) return;
+
+    // Tip satırı (SIGNTYPES listesindeki değerler)
+    if(/Kompozit|Kutu Harf|Işıklı|Işıksız|Totem|Folyo|Vinil|Oneway|Dekota|Cam Folyo|Yönlendirme/i.test(line)){
+      if(!currentBlock.type) currentBlock.type = line.trim();
+      return;
+    }
+    // Ölçü: "300 x 80 cm" veya "G: 300 / Y: 80"
+    var dimMatch = line.match(/(\d+(?:[.,]\d+)?)\s*[xX\u00d7\/]\s*(\d+(?:[.,]\d+)?)/);
+    if(dimMatch && !currentBlock.w){
+      currentBlock.w = dimMatch[1].replace(',','.');
+      currentBlock.h = dimMatch[2].replace(',','.');
+      // Adet
+      var adetM = line.match(/(\d+)\s*adet/i);
+      if(adetM) currentBlock.adet = adetM[1];
+      return;
+    }
+    // Montaj
+    if(/Duvar|Cam|Direk|Kolon|Çatı|Cephe|Zemin|Tavan|Montaj/i.test(line)){
+      if(!currentBlock.montaj) currentBlock.montaj = line.replace(/Montaj[\s:]+/i,'').trim();
+      return;
+    }
+    // Not
+    if(/Not:|Açıklama|Dikkat/i.test(line)){
+      currentBlock.note += line.replace(/^(Not|Açıklama|Dikkat)[\s:]+/i,'').trim()+' ';
+    }
+  });
+  if(currentBlock) signBlocks.push(currentBlock);
+
+  // Ölçü satırı bulamazsak — ham regex ile yakala
+  if(!signBlocks.length){
+    var dimRe = /\d+(?:[.,]\d+)?\s*[xX\u00d7]\s*\d+(?:[.,]\d+)?/g;
+    var allLines = full.split(/\s{3,}/);
+    allLines.forEach(function(l){
+      if(dimRe.test(l)){
+        signBlocks.push({name:'Tabela', type:'', w:'', h:'', adet:'', montaj:'', note:l.trim()});
+      }
+      dimRe.lastIndex=0;
+    });
+  }
+
+  if(signBlocks.length > 0){
     newSigns=[]; newSignIdCounter=0;
     document.getElementById('new-signs-list').innerHTML='';
-    signLines.slice(0,10).forEach(function(line){
+    signBlocks.slice(0,15).forEach(function(s){
       addNewSign();
-      var id='ns-'+newSignIdCounter;
-      var dm=line.match(/(\d+)\s*[xX\u00d7\*]\s*(\d+)/);
-      if(dm){
-        document.getElementById(id+'-w').value=dm[1];
-        document.getElementById(id+'-h').value=dm[2];
-      }
-      var am=line.match(/(\d+)\s*adet/i);
-      if(am) document.getElementById(id+'-adet').value=am[1];
-      var nameRaw=line.replace(/\d+\s*[xX\u00d7\*]\s*\d+\s*(cm)?/gi,'').replace(/\d+\s*adet/gi,'').replace(/cm/gi,'').trim();
-      if(nameRaw.length>1) document.getElementById(id+'-name').value=nameRaw.slice(0,50);
+      var id = 'ns-'+newSignIdCounter;
+      document.getElementById(id+'-name').value  = s.name  || '';
+      document.getElementById(id+'-w').value     = s.w     || '';
+      document.getElementById(id+'-h').value     = s.h     || '';
+      document.getElementById(id+'-adet').value  = s.adet  || '';
+      document.getElementById(id+'-montaj').value= s.montaj|| '';
+      document.getElementById(id+'-note').value  = (s.type?s.type+' — ':'')+s.note.trim();
     });
   }
 }
@@ -711,115 +770,104 @@ function editProject(i){
   },50);
 }
 
-/* ══ SUNUM ══ */
-function openSunum(i){
-  sunumIdx=i;
-  const p=projects[i];
-  const items=(p.signs||[]).map(s=>`
-    <div class="sunum-item">
-      <div class="sunum-thumb">${s.designImg?`<img src="${s.designImg}">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;">🖼</div>'}</div>
-      <div><div style="font-size:13px;font-weight:800;">${s.name||'Tabela'}</div><div style="font-size:11px;color:var(--txt3);">${getDims(s)}</div></div>
-    </div>`).join('');
-  document.getElementById('sunum-prev').innerHTML=`
-    <div class="sunum-hd"><div class="sunum-proj">${p.project||'—'}</div><div class="sunum-sub">👤 ${p.client||'—'} · 📅 ${p.date||''}</div></div>
-    <div class="sunum-items">${items}</div>`;
-  document.getElementById('modal-sunum').classList.add('open');
-}
-
-function downloadSunum(){
-  const p=projects[sunumIdx];
-  const items=(p.signs||[]).map((s,i)=>`
-    <div style="border:1px solid #eee;border-radius:12px;padding:16px;margin-bottom:14px;break-inside:avoid;">
-      <div style="font-size:15px;font-weight:800;margin-bottom:10px;">${i+1}. ${s.name||'Tabela'} <span style="font-size:12px;color:#888;font-weight:600;">${getDims(s)}</span></div>
-      ${s.designImg?`<img src="${s.designImg}" style="width:100%;max-height:300px;object-fit:contain;border-radius:8px;background:#f9f9f9;padding:8px;border:1px solid #eee;">`:'<div style="background:#f5f5f5;border-radius:8px;padding:40px;text-align:center;color:#bbb;">Tasarım görseli henüz eklenmedi</div>'}
-      ${s.note?`<div style="margin-top:8px;font-size:12px;color:#666;background:#fffbf0;padding:8px;border-radius:6px;">📝 ${s.note}</div>`:''}
-    </div>`).join('');
-  const html=`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${p.project||'Sunum'}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,sans-serif;}body{background:#f5f5f5;padding:16px;}
-.wrap{max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12);}
-.hd{background:#e03d2f;color:#fff;padding:22px 20px;}.hd h1{font-size:20px;font-weight:900;}.hd p{font-size:13px;opacity:.8;margin-top:4px;}
-.body{padding:18px;}.note{background:#eff6ff;border-radius:10px;padding:12px 14px;font-size:13px;color:#1d4ed8;margin-bottom:16px;line-height:1.6;}
-.onay-inp{width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:14px;margin-bottom:10px;font-family:inherit;}
-.onay-btn{width:100%;background:#1db87a;color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;}
-.onay-done{background:#f0fdf4;border:2px solid #1db87a;border-radius:10px;padding:16px;text-align:center;color:#1db87a;font-weight:800;font-size:15px;display:none;margin-top:10px;}
-</style></head><body>
-<div class="wrap">
-  <div class="hd"><h1>${p.project||'Proje'}</h1><p>👤 ${p.client||'—'} &nbsp;·&nbsp; 📅 ${p.date||''}</p></div>
-  <div class="body">
-    <div class="note">Sayın müşterimiz, hazırlanan tasarımları inceleyip onaylayabilirsiniz.</div>
-    ${items}
-    <div id="onay-form" style="margin-top:20px;">
-      <input class="onay-inp" id="musteri-ad" placeholder="Adınız Soyadınız">
-      <button class="onay-btn" onclick="onayla()">✅ Tasarımları Onaylıyorum</button>
-    </div>
-    <div class="onay-done" id="onay-done"></div>
-  </div>
-</div>
-<script>function onayla(){const ad=document.getElementById('musteri-ad').value.trim();if(!ad){alert('Adınızı girin.');return;}document.getElementById('onay-form').style.display='none';const d=document.getElementById('onay-done');d.style.display='block';d.innerHTML='✅ <b>'+ad+'</b> tarafından onaylandı<br><span style="font-size:12px;">'+new Date().toLocaleString('tr-TR')+'</span>';}<\/script>
-</body></html>`;
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=(p.client||'musteri').replace(/[^a-z0-9]/gi,'_')+'_sunum.html'; a.click();
-  closeModal('modal-sunum'); toast('Sunum dosyası indirildi ✓');
-}
-
 /* ══ ÜRETİM & KEŞİF PAKETİ — YATAY A4 ══ */
 function uretimPDF(i){
-  const p=projects[i];
-  const rows=(p.signs||[]).map((s,si)=>`
-    <div style="break-inside:avoid;margin-bottom:18px;border:1.5px solid #ddd;border-radius:8px;overflow:hidden;">
-      <div style="background:#e03d2f;color:#fff;padding:8px 14px;font-size:13px;font-weight:800;">${si+1}. ${s.name||'Tabela '+(si+1)}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
-        <div style="padding:10px 12px;border-right:1px solid #eee;">
-          <div style="font-size:10px;font-weight:800;color:#888;margin-bottom:6px;text-transform:uppercase;">Ölçüler & Bilgiler</div>
-          ${s.w||s.h?`<div style="font-size:14px;font-weight:800;margin-bottom:5px;">📐 ${s.w||'?'}cm × ${s.h||'?'}cm ${s.adet?'— <b>'+s.adet+' adet</b>':''}</div>`:''}
-          ${s.montaj?`<div style="font-size:11px;background:#fffbf0;padding:4px 8px;border-radius:4px;margin-bottom:4px;">📍 Montaj: <b>${s.montaj}</b></div>`:''}
-          ${s.note?`<div style="font-size:11px;color:#666;margin-top:4px;">📝 ${s.note}</div>`:''}
-        </div>
-        <div style="padding:10px 12px;">
-          <div style="font-size:10px;font-weight:800;color:#888;margin-bottom:6px;text-transform:uppercase;">Onaylanan Tasarım</div>
-          ${s.designImg?`<img src="${s.designImg}" style="width:100%;max-height:160px;object-fit:contain;border:1px solid #eee;border-radius:6px;background:#f9f9f9;">`:
-          '<div style="background:#f5f5f5;border-radius:6px;padding:24px 0;text-align:center;color:#bbb;font-size:11px;">Tasarım görseli eklenmedi</div>'}
-        </div>
-      </div>
-    </div>`).join('');
+  const p = projects[i];
 
-  const html=`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
-<title>Paprika Üretim & Keşif — ${p.project}</title>
-<style>
-@page{ size:A4 landscape; margin:12mm 14mm; }
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
-body{padding:0;color:#1a1a1a;font-size:12px;}
-</style></head><body>
-<!-- BAŞLIK -->
-<div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;border-bottom:3px solid #e03d2f;padding-bottom:10px;margin-bottom:16px;">
-  <div>
-    <div style="font-size:22px;font-weight:900;color:#e03d2f;line-height:1;">PAPRİKA</div>
-    <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;">ÜRETİM & KEŞİF PAKETİ</div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:#f8f8f8;border-radius:8px;padding:10px 14px;">
-    <div><div style="font-size:10px;color:#888;font-weight:700;">MÜŞTERİ</div><div style="font-size:13px;font-weight:800;">${p.client||'—'}</div></div>
-    <div><div style="font-size:10px;color:#888;font-weight:700;">PROJE</div><div style="font-size:13px;font-weight:800;">${p.project||'—'}</div></div>
-    <div><div style="font-size:10px;color:#888;font-weight:700;">ADRES</div><div style="font-size:12px;font-weight:600;">${p.address||'—'}</div></div>
-    <div><div style="font-size:10px;color:#888;font-weight:700;">KEŞİF TARİHİ</div><div style="font-size:12px;font-weight:600;">${p.date||'—'}</div></div>
-    <div><div style="font-size:10px;color:#888;font-weight:700;">ÖLÇÜMÜ ALAN</div><div style="font-size:12px;font-weight:600;">${p.measurer||'—'}</div></div>
-    <div><div style="font-size:10px;color:#888;font-weight:700;">MÜŞTERİ ONAYI</div><div style="font-size:12px;font-weight:700;color:${p.onayAd?'#1db87a':'#c97d00'}">${p.onayAd?'✅ '+p.onayAd:'⏳ Bekleniyor'}</div></div>
-  </div>
-  <div style="text-align:right;font-size:10px;color:#bbb;">${new Date().toLocaleDateString('tr-TR')}</div>
-</div>
-<!-- TABELALAR -->
-${rows}
-<div style="margin-top:12px;border-top:1px dashed #ddd;padding-top:8px;font-size:9px;color:#ccc;text-align:center;">
-  Paprika Reklam · Üretim & Keşif Paketi · ${new Date().toLocaleDateString('tr-TR')}
-</div>
-<script>window.onload=()=>window.print();<\/script>
-</body></html>`;
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='paprika_uretim_'+(p.client||'proje').replace(/[^a-z0-9]/gi,'_')+'.html';
+  const rows = (p.signs||[]).map(function(s,si){
+    // Keşif fotoğrafları
+    var photoHtml = '';
+    if(s.kesifPhotos && s.kesifPhotos.length){
+      photoHtml = '<div style="margin-top:8px;">'
+        +'<div style="font-size:9px;font-weight:800;color:#888;text-transform:uppercase;margin-bottom:4px;">Keşif Fotoğrafları</div>'
+        +'<div style="display:grid;grid-template-columns:repeat('+Math.min(s.kesifPhotos.length,4)+',1fr);gap:4px;">'
+        + s.kesifPhotos.map(function(ph){
+            return '<div><img src="'+(ph.annotations||ph.dataUrl)+'" style="width:100%;height:70px;object-fit:cover;border-radius:4px;border:1px solid #ddd;"></div>';
+          }).join('')
+        +'</div></div>';
+    }
+
+    // Onaylanan tasarım
+    var tasarimHtml = s.designImg
+      ? '<img src="'+s.designImg+'" style="width:100%;height:100%;max-height:180px;object-fit:contain;border-radius:6px;background:#f9f9f9;border:1px solid #eee;">'
+      : '<div style="background:#f5f5f5;border-radius:6px;height:100%;min-height:80px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;padding:12px;text-align:center;">Tasarım görseli henüz eklenmedi</div>';
+
+    // Ölçü + montaj bilgisi (keşiften)
+    var olcuHtml = '';
+    if(s.w || s.h){
+      olcuHtml += '<div style="font-size:16px;font-weight:900;color:#e03d2f;margin-bottom:4px;">'+esc(s.w||'?')+' × '+esc(s.h||'?')+' cm'+(s.adet?' &nbsp;·&nbsp; <span style="font-size:13px;color:#555;">'+esc(s.adet)+' adet</span>':'')+'</div>';
+    }
+    if(s.montaj){
+      olcuHtml += '<div style="display:inline-block;background:#111;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:12px;margin-bottom:6px;">📍 '+esc(s.montaj)+'</div>';
+    }
+    if(s.note){
+      olcuHtml += '<div style="font-size:11px;color:#666;background:#fffbf0;padding:5px 8px;border-radius:4px;border:1px solid #fde08d;margin-top:4px;">📝 '+esc(s.note)+'</div>';
+    }
+    if(!olcuHtml) olcuHtml = '<div style="color:#bbb;font-size:12px;">Ölçü bilgisi girilmedi</div>';
+
+    return '<div style="break-inside:avoid;margin-bottom:16px;border:1.5px solid #ddd;border-radius:8px;overflow:hidden;">'
+      +'<div style="background:#e03d2f;color:#fff;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;">'
+        +'<div style="font-size:13px;font-weight:900;">'+(si+1)+'. '+esc(s.name||s.type||('Tabela '+(si+1)))+'</div>'
+        +(s.type?'<div style="font-size:10px;opacity:.8;">'+esc(s.type)+'</div>':'')
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:0;">'
+        // Sol: keşif bilgileri
+        +'<div style="padding:10px 12px;border-right:1px solid #eee;">'
+          +'<div style="font-size:9px;font-weight:800;color:#888;text-transform:uppercase;margin-bottom:6px;">Keşif Ölçüleri</div>'
+          + olcuHtml
+          + photoHtml
+        +'</div>'
+        // Orta: boş ayraç (ileride not için)  
+        +'<div style="padding:10px 12px;border-right:1px solid #eee;">'
+          +'<div style="font-size:9px;font-weight:800;color:#888;text-transform:uppercase;margin-bottom:6px;">Keşif Notları</div>'
+          +(s.note?'<div style="font-size:12px;color:#555;line-height:1.6;">'+esc(s.note)+'</div>':'<div style="color:#ddd;font-size:11px;">—</div>')
+          +(p.onayAd?'<div style="margin-top:10px;font-size:9px;font-weight:800;color:#888;text-transform:uppercase;">Müşteri Onayı</div><div style="font-size:12px;font-weight:700;color:#1db87a;">✅ '+esc(p.onayAd)+'</div>':'')
+        +'</div>'
+        // Sağ: onaylanan tasarım
+        +'<div style="padding:10px 12px;">'
+          +'<div style="font-size:9px;font-weight:800;color:#888;text-transform:uppercase;margin-bottom:6px;">Onaylanan Tasarım</div>'
+          + tasarimHtml
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+
+  const html = '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">'
+    +'<title>Paprika Üretim & Keşif — '+esc(p.project)+'</title>'
+    +'<style>'
+    +'@page{ size:A4 landscape; margin:10mm 12mm; }'
+    +'*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;}'
+    +'body{padding:0;color:#1a1a1a;font-size:12px;background:#fff;}'
+    +'</style></head><body>'
+
+    // BAŞLIK
+    +'<div style="display:grid;grid-template-columns:160px 1fr 120px;align-items:center;gap:12px;border-bottom:3px solid #e03d2f;padding-bottom:10px;margin-bottom:14px;">'
+      +'<div><div style="font-size:22px;font-weight:900;color:#e03d2f;line-height:1;">PAPRİKA</div>'
+        +'<div style="font-size:9px;font-weight:700;color:#888;letter-spacing:1px;margin-top:2px;">ÜRETİM & KEŞİF PAKETİ</div></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:#f8f8f8;border-radius:8px;padding:8px 12px;">'
+        +'<div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;">Müşteri</div><div style="font-size:12px;font-weight:800;">'+esc(p.client||'—')+'</div></div>'
+        +'<div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;">Proje</div><div style="font-size:12px;font-weight:800;">'+esc(p.project||'—')+'</div></div>'
+        +'<div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;">Adres</div><div style="font-size:11px;font-weight:600;">'+esc(p.address||'—')+'</div></div>'
+        +'<div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;">Keşif Tarihi</div><div style="font-size:11px;font-weight:600;">'+esc(p.date||'—')+'</div></div>'
+        +'<div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;">Ölçümü Alan</div><div style="font-size:11px;font-weight:600;">'+esc(p.measurer||'—')+'</div></div>'
+      +'</div>'
+      +'<div style="text-align:right;font-size:10px;color:#bbb;">'+new Date().toLocaleDateString('tr-TR')+'</div>'
+    +'</div>'
+
+    + rows
+
+    +'<div style="margin-top:10px;border-top:1px dashed #ddd;padding-top:7px;font-size:9px;color:#ccc;text-align:center;">'
+      +'Paprika Reklam · Üretim & Keşif Paketi · '+new Date().toLocaleDateString('tr-TR')
+    +'</div>'
+    +'<script>window.onload=function(){window.print();};<\/script>'
+    +'</body></html>';
+
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'paprika_uretim_'+(p.client||'proje').replace(/[^a-z0-9]/gi,'_')+'.html';
   a.click();
   toast('Üretim & Keşif Paketi hazırlandı ✓');
 }
