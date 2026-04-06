@@ -217,25 +217,39 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;}
 
 <!-- IMPORT -->
 <div id="p-import" class="page">
-  <div class="card">
-    <div class="card-title">📥 Keşif Verisi Yükle</div>
-    <div class="info-box">💡 Saha uygulamasından gelen JSON verisini buraya yapıştır veya <b>Manuel Ekle</b> ile kendin gir.</div>
-    <div class="grid2" style="margin-bottom:16px;">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--txt3);margin-bottom:6px;">JSON Yapıştır (Saha App Export)</div>
-        <textarea id="json-paste" rows="6" placeholder='[{"client":"...","project":"...","signs":[...]}]'
-          style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:12px;font-family:monospace;resize:vertical;"></textarea>
-        <button class="btn btn-pr btn-full" style="margin-top:8px;" onclick="importJSON()">📥 JSON'dan Yükle</button>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--txt3);margin-bottom:6px;">Manuel Proje Ekle</div>
-        <input id="m-client" type="text" placeholder="Müşteri / Firma Adı" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;margin-bottom:8px;">
-        <input id="m-project" type="text" placeholder="Proje / İş Adı" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;margin-bottom:8px;">
-        <input id="m-address" type="text" placeholder="Adres" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;margin-bottom:8px;">
-        <input id="m-signs" type="number" placeholder="Tabela Sayısı (otomatik eklenir)" min="1" max="20" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;margin-bottom:8px;">
-        <button class="btn btn-grn btn-full" onclick="addManual()">➕ Manuel Ekle</button>
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">📥 Saha Uygulamasından Aktar</div>
+    <div class="info-box" style="background:#e8f4fd;border-color:#90caf9;color:#1565c0;">
+      <b>Nasıl çalışır?</b><br>
+      1️⃣ Mobil uygulamada <b>Paylaş → Ofis Paneline Aktar</b> butonuna bas<br>
+      2️⃣ İndirilen <b>.json</b> dosyasını aşağıya yükle veya içeriğini yapıştır<br>
+      3️⃣ Projeler otomatik içe aktarılır
+    </div>
+    <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;">
+      <label class="upload-zone" style="flex:1;min-width:200px;padding:24px 16px;cursor:pointer;">
+        <input type="file" accept=".json,application/json" style="display:none;" onchange="importFile(this)">
+        <div class="upload-ico">📂</div>
+        <div class="upload-txt">JSON Dosyası Seç</div>
+        <div class="upload-sub">paprika-kesif-export-*.json</div>
+      </label>
+      <div style="flex:2;min-width:250px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:12px;font-weight:700;color:var(--txt3);">veya JSON içeriğini yapıştır</div>
+        <textarea id="json-paste" rows="5" placeholder='[{"client":"...","project":"..."}]'
+          style="flex:1;width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:12px;font-family:monospace;resize:none;"></textarea>
+        <button class="btn btn-pr btn-full" onclick="importJSON()">📥 Yükle</button>
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">✏️ Manuel Proje Ekle</div>
+    <div class="grid2" style="margin-bottom:12px;">
+      <input id="m-client" type="text" placeholder="Müşteri / Firma Adı" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
+      <input id="m-project" type="text" placeholder="Proje / İş Adı" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
+      <input id="m-address" type="text" placeholder="Adres" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
+      <input id="m-signs" type="number" placeholder="Kaç tabela? (varsayılan: 1)" min="1" max="20" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:var(--r2);font-size:13px;font-family:'Nunito',sans-serif;">
+    </div>
+    <button class="btn btn-grn" onclick="addManual()">➕ Manuel Ekle</button>
   </div>
 </div>
 
@@ -595,6 +609,17 @@ ${signs}
 }
 
 /* ═══ JSON IMPORT ═══ */
+function importFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('json-paste').value = e.target.result;
+    importJSON();
+  };
+  reader.readAsText(file);
+}
+
 function importJSON(){
   const txt = document.getElementById('json-paste').value.trim();
   if(!txt){ toast('JSON boş','err'); return; }
