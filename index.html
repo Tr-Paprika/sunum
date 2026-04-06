@@ -731,42 +731,116 @@ function editProj(i){
 function uretimPDF(i){
   var p=P[i];
   var rows=(p.signs||[]).map(function(s,si){
-    var kesif='';
-    if(s.w&&s.h)kesif+='<div style="font-size:19px;font-weight:900;color:#e03d2f;margin-bottom:5px;">'+esc(s.w)+'×'+esc(s.h)+' cm'+(s.ad?' &nbsp;<span style="font-size:13px;color:#666;">'+esc(s.ad)+' adet</span>':'')+'</div>';
-    if(s.tp)kesif+='<div style="font-size:11px;background:#f0f0f0;display:inline-block;padding:2px 8px;border-radius:10px;margin-bottom:5px;">'+esc(s.tp)+'</div><br>';
-    if(s.mn)kesif+='<div style="margin:4px 0;"><span style="background:#111;color:#fff;font-size:10px;font-weight:800;padding:2px 10px;border-radius:12px;">📍 '+esc(s.mn)+'</span></div>';
-    if(s.nt)kesif+='<div style="font-size:11px;color:#666;background:#fffbf0;padding:5px 8px;border-radius:4px;border:1px solid #fde08d;margin-top:4px;">📝 '+esc(s.nt)+'</div>';
-    if(!kesif)kesif='<div style="color:#ccc;font-size:12px;">Keşif bilgisi yok</div>';
-    var tas=s.di
-      ?'<img src="'+s.di+'" style="width:100%;max-height:170px;object-fit:contain;border-radius:6px;background:#f9f9f9;border:1px solid #eee;">'
-      :'<div style="background:#f5f5f5;border-radius:6px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px;">Tasarım eklenmedi</div>';
-    return '<div style="break-inside:avoid;margin-bottom:13px;border:1.5px solid #ddd;border-radius:8px;overflow:hidden;">'
-      +'<div style="background:#e03d2f;color:#fff;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;">'
+
+    // ── TASARIM (üstte büyük) ──
+    var tasarimHtml = s.di
+      ? '<div style="background:#fff;border-bottom:1.5px solid #eee;padding:10px 12px;">'
+          +'<div style="font-size:8px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">ONAYLANAN TASARIM</div>'
+          +'<img src="'+s.di+'" style="width:100%;max-height:220px;object-fit:contain;border-radius:6px;background:#fafafa;border:1px solid #eee;">'
+        +'</div>'
+      : '<div style="background:#fafafa;border-bottom:1.5px solid #eee;padding:16px 12px;text-align:center;color:#ccc;font-size:12px;">Tasarım eklenmedi</div>';
+
+    // ── KEŞİF BİLGİLERİ (altta - resimdeki gibi grid) ──
+    var dimHtml = '';
+    if(s.w && s.h){
+      dimHtml += '<div style="background:#fff5f5;border-radius:6px;padding:8px 10px;text-align:center;border:1px solid #fdd;">'
+        +'<div style="font-size:20px;font-weight:900;color:#e03d2f;line-height:1;">'+esc(s.w)+'<span style="font-size:12px;font-weight:700;">cm</span></div>'
+        +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-top:2px;">GENİŞLİK</div>'
+      +'</div>';
+      dimHtml += '<div style="background:#fff5f5;border-radius:6px;padding:8px 10px;text-align:center;border:1px solid #fdd;">'
+        +'<div style="font-size:20px;font-weight:900;color:#e03d2f;line-height:1;">'+esc(s.h)+'<span style="font-size:12px;font-weight:700;">cm</span></div>'
+        +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-top:2px;">YÜKSEKLİK</div>'
+      +'</div>';
+    }
+    if(s.d){
+      dimHtml += '<div style="background:#f5f5f5;border-radius:6px;padding:8px 10px;text-align:center;border:1px solid #eee;">'
+        +'<div style="font-size:20px;font-weight:900;color:#333;line-height:1;">'+esc(s.d)+'</div>'
+        +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-top:2px;">ADET</div>'
+      +'</div>';
+    }
+    // Detay notu kutusu
+    var noteBox = (s.nt||s.note)
+      ? '<div style="background:#fffbf0;border:1px solid #fde08d;border-radius:6px;padding:8px 10px;font-size:11px;color:#855a00;font-weight:700;min-width:100px;">'
+          +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-bottom:3px;">DETAY NOTU</div>'
+          + esc(s.nt||s.note||'')
+        +'</div>'
+      : '<div style="background:#f9f9f9;border:1px dashed #ddd;border-radius:6px;padding:8px 10px;font-size:11px;color:#ccc;min-width:100px;">'
+          +'<div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;margin-bottom:3px;">DETAY NOTU</div>—</div>';
+
+    // mrows tablosu
+    var mrowsHtml = '';
+    if(s.mrows && s.mrows.length){
+      mrowsHtml = '<table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:11px;">'
+        +'<tr><th style="background:#f0f0f0;padding:3px 6px;border:1px solid #ddd;text-align:left;">#</th>'
+        +'<th style="background:#f0f0f0;padding:3px 6px;border:1px solid #ddd;">Genişlik</th>'
+        +'<th style="background:#f0f0f0;padding:3px 6px;border:1px solid #ddd;">Yükseklik</th>'
+        +'<th style="background:#f0f0f0;padding:3px 6px;border:1px solid #ddd;">Adet</th>'
+        +'<th style="background:#f0f0f0;padding:3px 6px;border:1px solid #ddd;">Not</th></tr>'
+        + s.mrows.map(function(r,ri){
+            return '<tr><td style="padding:3px 6px;border:1px solid #eee;color:#e03d2f;font-weight:900;">'+(ri+1)+'</td>'
+              +'<td style="padding:3px 6px;border:1px solid #eee;font-weight:800;">'+esc(r.w||'—')+'</td>'
+              +'<td style="padding:3px 6px;border:1px solid #eee;font-weight:800;">'+esc(r.h||'—')+'</td>'
+              +'<td style="padding:3px 6px;border:1px solid #eee;">'+esc(r.d||'—')+'</td>'
+              +'<td style="padding:3px 6px;border:1px solid #eee;color:#666;">'+esc(r.note||'—')+'</td></tr>';
+          }).join('')
+        +'</table>';
+    }
+
+    // Keşif fotoğrafları
+    var photosHtml = '';
+    var photos = s.photos || [];
+    if(photos.length){
+      photosHtml = '<div style="margin-top:8px;">'
+        +'<div style="font-size:8px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">KEŞİF FOTOĞRAFLARI ('+photos.length+')</div>'
+        +'<div style="display:grid;grid-template-columns:repeat('+Math.min(photos.length,4)+',1fr);gap:5px;">'
+        + photos.map(function(ph){
+            return '<div style="border-radius:5px;overflow:hidden;border:1px solid #eee;aspect-ratio:4/3;">'
+              +'<img src="'+(ph.dataUrl||ph.src||'')+'" style="width:100%;height:100%;object-fit:cover;">'
+              +(ph.note?'<div style="font-size:8px;padding:2px 4px;background:#f5f5f5;text-align:center;color:#666;">'+esc(ph.note)+'</div>':'')
+            +'</div>';
+          }).join('')
+        +'</div></div>';
+    }
+
+    return '<div style="break-inside:avoid;margin-bottom:14px;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">'
+      // Kırmızı başlık
+      +'<div style="background:#e03d2f;color:#fff;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">'
         +'<div style="font-size:13px;font-weight:900;">'+(si+1)+'. '+esc(s.nm||s.tp||'Tabela '+(si+1))+'</div>'
-        +(p.onayAd?'<div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 9px;border-radius:10px;">✅ '+esc(p.onayAd)+'</div>':'')
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+          +(s.tp?'<span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 9px;border-radius:10px;">'+esc(s.tp)+'</span>':'')
+          +(p.onayAd?'<span style="font-size:10px;background:rgba(255,255,255,.15);padding:2px 9px;border-radius:10px;">✅ '+esc(p.onayAd)+'</span>':'')
+        +'</div>'
       +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 2fr;gap:0;">'
-        +'<div style="padding:10px 12px;border-right:1px solid #eee;"><div style="font-size:9px;font-weight:800;color:#aaa;text-transform:uppercase;margin-bottom:7px;">KEŞİF BİLGİLERİ</div>'+kesif+'</div>'
-        +'<div style="padding:10px 12px;"><div style="font-size:9px;font-weight:800;color:#aaa;text-transform:uppercase;margin-bottom:7px;">ONAYLANAN TASARIM</div>'+tas+'</div>'
+      // Tasarım - üstte büyük
+      + tasarimHtml
+      // Keşif bilgileri - altta
+      +'<div style="padding:10px 12px;background:#fafafa;border-top:1px solid #f0f0f0;">'
+        +'<div style="font-size:8px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">KEŞİF BİLGİLERİ</div>'
+        +'<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;">'
+          + dimHtml + noteBox
+          +(s.mn?'<div style="display:flex;align-items:center;"><span style="background:#111;color:#fff;font-size:10px;font-weight:800;padding:4px 11px;border-radius:12px;">📍 '+esc(s.mn)+'</span></div>':'')
+        +'</div>'
+        + mrowsHtml
+        + photosHtml
       +'</div>'
     +'</div>';
   }).join('');
 
   var html='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Üretim Paketi</title>'
-    +'<style>@page{size:A4 landscape;margin:10mm 12mm;}*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}body{background:#fff;color:#111;}</style>'
+    +'<style>@page{size:A4 landscape;margin:8mm 10mm;}*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}body{background:#fff;color:#111;font-size:12px;}</style>'
     +'</head><body>'
-    +'<div style="display:grid;grid-template-columns:140px 1fr 100px;gap:10px;align-items:center;border-bottom:3px solid #e03d2f;padding-bottom:10px;margin-bottom:14px;">'
-      +'<div><div style="font-size:21px;font-weight:900;color:#e03d2f;">PAPRİKA</div><div style="font-size:8px;color:#aaa;font-weight:700;letter-spacing:1px;margin-top:1px;">ÜRETİM & KEŞİF PAKETİ</div></div>'
+    +'<div style="display:grid;grid-template-columns:130px 1fr 90px;gap:10px;align-items:center;border-bottom:3px solid #e03d2f;padding-bottom:10px;margin-bottom:14px;">'
+      +'<div><div style="font-size:20px;font-weight:900;color:#e03d2f;line-height:1;">PAPRİKA</div><div style="font-size:8px;color:#aaa;font-weight:700;letter-spacing:1px;margin-top:2px;">ÜRETİM & KEŞİF PAKETİ</div></div>'
       +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;background:#f8f8f8;border-radius:7px;padding:8px 11px;">'
-        +'<div><div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;">Müşteri</div><div style="font-size:12px;font-weight:800;">'+esc(p.cl||'—')+'</div></div>'
-        +'<div><div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;">Proje</div><div style="font-size:12px;font-weight:800;">'+esc(p.pr||'—')+'</div></div>'
-        +'<div><div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;">Adres</div><div style="font-size:11px;font-weight:600;">'+esc(p.ad||'—')+'</div></div>'
-        +'<div><div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;">Keşif Tarihi</div><div style="font-size:11px;font-weight:600;">'+esc(p.dt||'—')+'</div></div>'
-        +'<div><div style="font-size:8px;color:#aaa;font-weight:800;text-transform:uppercase;">Ölçümü Alan</div><div style="font-size:11px;font-weight:600;">'+esc(p.ms||'—')+'</div></div>'
+        +'<div><div style="font-size:7px;color:#aaa;font-weight:800;text-transform:uppercase;">Müşteri</div><div style="font-size:12px;font-weight:800;">'+esc(p.cl||'—')+'</div></div>'
+        +'<div><div style="font-size:7px;color:#aaa;font-weight:800;text-transform:uppercase;">Proje</div><div style="font-size:12px;font-weight:800;">'+esc(p.pr||'—')+'</div></div>'
+        +'<div><div style="font-size:7px;color:#aaa;font-weight:800;text-transform:uppercase;">Adres</div><div style="font-size:11px;font-weight:600;">'+esc(p.ad||'—')+'</div></div>'
+        +'<div><div style="font-size:7px;color:#aaa;font-weight:800;text-transform:uppercase;">Keşif Tarihi</div><div style="font-size:11px;font-weight:600;">'+esc(p.dt||'—')+'</div></div>'
+        +'<div><div style="font-size:7px;color:#aaa;font-weight:800;text-transform:uppercase;">Ölçümü Alan</div><div style="font-size:11px;font-weight:600;">'+esc(p.ms||'—')+'</div></div>'
       +'</div>'
-      +'<div style="text-align:right;font-size:10px;color:#ccc;">'+new Date().toLocaleDateString('tr-TR')+'</div>'
+      +'<div style="text-align:right;font-size:9px;color:#ccc;">'+new Date().toLocaleDateString('tr-TR')+'</div>'
     +'</div>'
-    +rows
+    + rows
     +'<div style="margin-top:10px;border-top:1px dashed #ddd;padding-top:7px;font-size:8px;color:#ccc;text-align:center;">Paprika Reklam · Üretim & Keşif Paketi · '+new Date().toLocaleDateString('tr-TR')+'</div>'
     +'<scr'+'ipt>window.onload=function(){window.print();};<'+'/script></body></html>';
 
