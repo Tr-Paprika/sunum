@@ -180,6 +180,12 @@ textarea.inp{resize:vertical;min-height:60px;line-height:1.5;}
             <div style="font-size:11px;color:var(--txt3);">Keşif uygulamasından "Ofise Gönder" ile indirilen dosya</div>
           </label>
         </div>
+            <label style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed #E0736B;border-radius:12px;padding:22px 18px;background:var(--red-bg);cursor:pointer;text-align:center;gap:4px;margin-top:0;">
+              <input type="file" accept="application/pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="loadPDFOfis(this)">
+              <div style="font-size:28px;">📋</div>
+              <div style="font-size:14px;font-weight:800;color:var(--red);">Keşif PDF</div>
+              <div style="font-size:11px;color:#999;">Keşif PDF'ini yükle</div>
+            </label>
         <div style="position:relative;">
           <div class="pdf-zone" id="pzone" style="height:100%;margin:0;">
             <input type="file" accept="application/pdf" onchange="loadPDF(this)">
@@ -442,6 +448,193 @@ function resetForm(){
 function showCards(){['kcard','scard','svcard'].forEach(function(id){document.getElementById(id).style.display='block';});}
 
 /* PDF */
+
+async function loadPDFOfis(input){
+  var file=input.files[0]; if(!file) return;
+  toast('⏳ PDF okunuyor...');
+  try{
+    if(typeof pdfjsLib==='undefined'){
+      toast('PDF kütüphanesi yüklenemedi','err'); return;
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc=
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var buf = await file.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({data:buf}).promise;
+
+    /* Tüm sayfaların metnini topla */
+    var pages=[];
+    for(var pg=1; pg<=pdf.numPages; pg++){
+      var page = await pdf.getPage(pg);
+      var tc   = await page.getTextContent();
+      /* item item, x/y sıralı — sütun bilgisini korumak için özel birleştirme */
+      var items = tc.items.sort(function(a,b){
+        var dy = Math.abs(a.transform[5]-b.transform[5]);
+        if(dy>4) return b.transform[5]-a.transform[5]; // üstten alta
+        return a.transform[4]-b.transform[4];           // soldan sağa
+      });
+      pages.push(items.map(function(it){return it.str;}).join(' '));
+    }
+    var raw = pages.join('\n---PAGE---\n');
+
+    parsePDFOfis(raw, file.name);
+    toast('✅ PDF aktarıldı: '+file.name);
+  }catch(e){
+    console.error(e);
+    toast('PDF hatası: '+e.message,'err');
+  }
+}
+
+function parsePDFOfis(raw, fname){
+  /* Türkçe PDF encoding sorunlarını normalize et */
+  var txt = raw
+    .replace(/[İI]/g,'İ').replace(/ı/g,'ı')
+    .replace(/Ğ/g,'Ğ').replace(/ğ/g,'ğ')
+    .replace(/Ş/g,'Ş').replace(/ş/g,'ş')
+    .replace(/Ö/g,'Ö').replace(/ö/g,'ö')
+    .replace(/Ü/g,'Ü').replace(/ü/g,'ü')
+    .replace(/Ç/g,'Ç').replace(/ç/g,'ç')
+    /* Bozuk encoding fallback */
+    .replace(/MTER/g,'MÜŞTERİ').replace(/GENLK/g,'GENİŞLİK')
+    .replace(/YKSEKLK/g,'YÜKSEKLİK').replace(/TARH/g,'TARİH')
+    .replace(/ADRES/g,'ADRES').replace(/KEF/g,'KEŞİF')
+    .replace(/DETAY NOTU/g,'DETAY NOTU').replace(/LM ALAN/g,'ÖLÇÜM ALAN')
+    .replace(/BLGLER/g,'BİLGİLERİ').replace(/retim/g,'Üretim');
+
+  var full = txt.replace(/\s{2,}/g,' ');
+
+  /* ── Genel bilgiler ── */
+  function after(kw, len){
+    len = len||120;
+    var re = new RegExp(kw+'[:\\s]{0,3}([^\\|\\n]{1,'+len+'?})(?=\\s{2,}|[A-ZÇĞİÖŞÜ]{3}|$)','i');
+    var m  = full.match(re);
+    return m&&m[1] ? m[1].trim() : '';
+  }
+
+  var cl = after('MÜŞTERİ')||after('MUSTERI')||after('Müşteri')||after('Firma')||'';
+  var pr = after('PROJE BİLGİLERİ')||after('PROJE')||after('Proje')||'';
+  var ms = after('ÖLÇÜM ALAN')||after('LM ALAN')||after('Alan Kişi')||'';
+  var ad = after('ADRES',160)||after('Adres',160)||after('GPS')||'';
+  var nt = after('GENEL NOT')||after('Genel Not')||'';
+
+  /* Tarih */
+  var dm = full.match(/(\d{2})[.\/\-](\d{2})[.\/\-](\d{4})/);
+  var dt = dm ? dm[1]+'.'+dm[2]+'.'+dm[3] : '';
+
+  /* Proje bozuk çıkarsa dosya adından al */
+  if(!pr && fname){
+    var fn = fname.replace(/\.pdf$/i,'').replace(/[_\-]+/g,' ');
+    if(fn.length>3 && fn.length<80) pr = fn;
+  }
+
+  /* ── Tabela blokları: "1. İsim" kalıbıyla böl ── */
+  var signs=[];
+  /* Paprika PDF formatı: bloklar "1. GirişÜstü" / "1. Giriş Üstü" şeklinde */
+  var chunks = raw.split(/(?=\b\d{1,2}\.\s+[A-ZÇĞİÖŞÜa-zçğışöü][^\n]{2,})/);
+
+  chunks.forEach(function(chunk){
+    var hm = chunk.match(/^(\d{1,2})\.\s+(.+)/);
+    if(!hm || parseInt(hm[1])<1) return;
+
+    var lines = chunk.split(/\s{3,}|\n/).map(function(l){return l.trim();}).filter(Boolean);
+
+    var s = {nm:'', tp:'', w:'', h:'', d:'', mn:'', nt:''};
+    s.nm = hm[2].replace(/\s+/g,' ').slice(0,60);
+
+    lines.forEach(function(line){
+      var ln = line.trim();
+
+      /* Tabela tipi */
+      if(!s.tp && /Kompozit|Kutu[- ]?Harf|Işıklı|Totem|Folyo|Vinil|Oneway|Dekota|Cam Folyo|Yönlendirme|Tabela|Dijital|Alüminyum/i.test(ln)){
+        s.tp = ln.slice(0,50);
+      }
+
+      /* Boyutlar — "200 x 100" veya sadece sayılar altalta */
+      var dxy = ln.match(/(\d+(?:[.,]\d+)?)\s*[xX×\/]\s*(\d+(?:[.,]\d+)?)/);
+      if(dxy&&!s.w){ s.w=dxy[1].replace(',','.'); s.h=dxy[2].replace(',','.'); }
+
+      /* Genişlik/Yükseklik ayrı satırlarda (Paprika PDF formatı) */
+      var gm = ln.match(/GENİŞLİK[^0-9]*(\d+(?:[.,]\d+)?)/i)||ln.match(/GENLK[^0-9]*(\d+(?:[.,]\d+)?)/i);
+      if(gm&&!s.w) s.w = gm[1];
+      var ym = ln.match(/YÜKSEKLİK[^0-9]*(\d+(?:[.,]\d+)?)/i)||ln.match(/YKSEKLK[^0-9]*(\d+(?:[.,]\d+)?)/i);
+      if(ym&&!s.h) s.h = ym[1];
+
+      /* Sayısal değerler altalta — GENİŞLİK/YÜKSEKLİK etiketi sonraki item */
+      var numonly = ln.match(/^(\d+(?:[.,]\d+)?)$/);
+      if(numonly){
+        /* önceki satır etiketine bak */
+        var prev = lines[lines.indexOf(line)-1]||'';
+        if(/GENİŞLİK|GENLK|Genişlik/i.test(prev) && !s.w) s.w = numonly[1];
+        else if(/YÜKSEKLİK|YKSEKLK|Yükseklik/i.test(prev) && !s.h) s.h = numonly[1];
+        else if(/ADET/i.test(prev) && !s.d) s.d = numonly[1];
+      }
+
+      /* Adet */
+      var am = ln.match(/(\d+)\s*adet/i)||ln.match(/ADET[^0-9]*(\d+)/i);
+      if(am&&!s.d) s.d = am[1];
+
+      /* Montaj */
+      if(!s.mn && /Duvar|Direk|Kolon|Çatı|Cephe|Zemin|Tavan|Cam\b|Demir/i.test(ln)){
+        s.mn = ln.replace(/^(Montaj|Kurulum)[:\s]*/i,'').trim().slice(0,60);
+      }
+
+      /* Detay notu */
+      if(!s.nt && /Detay[:\s]|Not[:\s]|Açıklama/i.test(ln)){
+        s.nt = ln.replace(/^(Detay[ Notu]*|Not|Açıklama)[:\s]*/i,'').trim().slice(0,120);
+      }
+    });
+
+    /* Paprika PDF'inde boyutlar inline gelemeyebilir — raw chunk'tan tekrar dene */
+    if(!s.w){
+      var rawW = chunk.match(/GENİŞLİK[^0-9]*(\d+)/i)||chunk.match(/GENLK[^0-9]*(\d+)/i);
+      if(rawW) s.w = rawW[1];
+    }
+    if(!s.h){
+      var rawH = chunk.match(/YÜKSEKLİK[^0-9]*(\d+)/i)||chunk.match(/YKSEKLK[^0-9]*(\d+)/i);
+      if(rawH) s.h = rawH[1];
+    }
+    if(!s.d){
+      var rawD = chunk.match(/ADET[^0-9]*(\d+)/i);
+      if(rawD) s.d = rawD[1];
+    }
+    if(!s.nt){
+      var rawN = chunk.match(/DETAY NOTU[^a-zA-Z0-9]*([^\n]{1,120})/i);
+      if(rawN) s.nt = rawN[1].trim();
+    }
+    if(!s.mn){
+      var rawM = chunk.match(/(Direk[^\n]{0,40}|Kolon[^\n]{0,40}|Duvar[^\n]{0,40}|Çatı[^\n]{0,40})/i);
+      if(rawM) s.mn = rawM[1].trim().slice(0,60);
+    }
+
+    signs.push(s);
+  });
+
+  /* Fallback: boyut listesi */
+  if(!signs.length){
+    var dr=/(\\d{2,4})\\s*[xX×]\\s*(\\d{2,4})/g, m2, seen={};
+    while((m2=dr.exec(raw))!==null){
+      var k=m2[1]+'x'+m2[2];
+      if(!seen[k]){seen[k]=1;signs.push({nm:'Tabela '+(signs.length+1),tp:'',w:m2[1],h:m2[2],d:'',mn:'',nt:''});}
+    }
+  }
+
+  /* ── Forma doldur ── */
+  var pi = cPi >= 0 ? cPi : 0;
+  if(!P[pi]) P[pi] = {cl:'',pr:'',ms:'',ad:'',dt:'',nt:'',st:'Hazırlanıyor',signs:[]};
+  var p = P[pi];
+
+  if(cl) p.cl = cl;
+  if(pr) p.pr = pr;
+  if(ms) p.ms = ms;
+  if(ad) p.ad = ad;
+  if(nt) p.nt = nt;
+  if(dt) p.dt = dt;
+  p.signs = signs;
+
+  renderProject(pi);
+  saveProjects();
+  toast('📋 '+signs.length+' tabela aktarıldı');
+}
+
 function loadJSON(input){
   var file = input.files[0]; if(!file) return;
   var reader = new FileReader();
@@ -754,7 +947,7 @@ async function uretimPDF(i){
   /* Tüm resimleri canvas ile yeniden boyutlandır - await ile bekle */
   var resized=await Promise.all((p.signs||[]).map(async function(s){
     var photos=await Promise.all((s.photos||[]).map(async function(ph){
-      return {dataUrl:await resizeImg(ph.dataUrl||'',360,240), note:ph.note||''};
+      return {dataUrl:await resizeImg(ph.dataUrl||'',600,600), note:ph.note||''};
     }));
     var di=s.di?await resizeImg(s.di,1400,900):'';
     return {photos:photos, di:di};
@@ -782,7 +975,7 @@ async function uretimPDF(i){
       photosHtml='<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:4px;margin-top:5px;">'
         +photos.map(function(ph){
           return '<div style="border-radius:4px;overflow:hidden;border:1px solid #ddd;">'
-            +'<img src="'+ph.dataUrl+'" style="width:100%;height:54px;object-fit:cover;display:block;">'
+            +'<img src="'+ph.dataUrl+'" style="width:100%;height:auto;min-height:75px;max-height:180px;object-fit:contain;display:block;background:#f4f4f4;">'
             +(ph.note?'<div style="font-size:7px;padding:1px 3px;background:#f5f5f5;color:#888;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">'+esc(ph.note)+'</div>':'')
           +'</div>';
         }).join('')
