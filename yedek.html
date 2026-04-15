@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Paprika Ofis</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --pr:#e03d2f;--pr2:#c0392b;--pr-bg:#fdf2f1;--pr-bd:#f5c5c1;
+  --grn:#1db87a;--grn-bg:#edfbf4;--grn-bd:#b6ecd4;
+  --ylw:#b45309;--ylw-bg:#fffbeb;--ylw-bd:#fde68a;
+  --blu:#2563eb;--blu-bg:#eff6ff;--blu-bd:#bfdbfe;
+  --pur:#7c3aed;--pur-bg:#f5f3ff;--pur-bd:#ddd6fe;
+  --org:#c2410c;--org-bg:#fff7ed;--org-bd:#fed7aa;
+  --bg:#f1f3f6;--card:#fff;--txt:#111;--txt2:#444;--txt3:#888;--bd:#e5e7eb;
+  --r:12px;--r2:8px;--sh:0 2px 12px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Nunito",sans-serif;}
+body{background:var(--bg);color:var(--txt);min-height:100vh;}
+.topnav{background:#fff;border-bottom:1px solid var(--bd);padding:0 20px;display:flex;align-items:center;gap:8px;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.logo{font-size:16px;font-weight:900;color:var(--pr);letter-spacing:-.3px;white-space:nowrap;}
+.logo em{color:var(--txt);font-style:normal;}
+.nav-tabs{display:flex;gap:3px;margin-left:6px;}
+.ntab{padding:5px 13px;border-radius:18px;font-size:13px;font-weight:700;cursor:pointer;color:var(--txt3);border:none;background:none;transition:.15s;}
+.ntab:hover{background:var(--bg);color:var(--txt);}
+.ntab.on{background:var(--pr-bg);color:var(--pr);}
+.ml{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.badge{background:var(--pr);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:12px;}
+.main{max-width:1140px;margin:0 auto;padding:20px 16px;}
+.page{display:none;}
+.page.on{display:block;}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px;margin-bottom:14px;}
+.card-ttl{font-size:14px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:680px){.stats{grid-template-columns:1fr 1fr;}}
+.sc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:13px 15px;}
+.sn{font-size:26px;font-weight:900;line-height:1;}
+.sl{font-size:11px;font-weight:700;color:var(--txt3);margin-top:3px;}
+.split{display:grid;grid-template-columns:280px 1fr;gap:12px;align-items:start;}
+@media(max-width:820px){.split{grid-template-columns:1fr;}}
+.sticky{position:sticky;top:66px;}
+.inp{width:100%;padding:8px 12px;border:1.5px solid var(--bd);border-radius:var(--r2);font-size:13px;font-family:inherit;outline:none;transition:.15s;background:#fff;}
+.inp:focus{border-color:var(--pr);box-shadow:0 0 0 3px var(--pr-bg);}
+textarea.inp{resize:vertical;min-height:60px;line-height:1.5;}
+.lbl{font-size:11px;font-weight:800;color:var(--txt3);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+@media(max-width:560px){.g2,.g3{grid-template-columns:1fr;}}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--r2);font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:inherit;transition:.15s;white-space:nowrap;}
+.btn:active{opacity:.75;}
+.bpr{background:var(--pr);color:#fff;}
+.bgrn{background:var(--grn);color:#fff;}
+.bgh{background:#fff;color:var(--txt2);border:1.5px solid var(--bd);}
+.bgh:hover{border-color:var(--pr);color:var(--pr);}
+.bred{background:var(--pr-bg);color:var(--pr);border:1px solid var(--pr-bd);}
+.bsm{padding:5px 9px;font-size:11px;}
+.bfull{width:100%;justify-content:center;}
+.proj-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r2);border:1.5px solid var(--bd);margin-bottom:5px;background:#fff;transition:.14s;cursor:pointer;}
+.proj-row:hover,.proj-row.sel{border-color:var(--pr);background:var(--pr-bg);}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pi{flex:1;min-width:0;}
+.pn{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ps{font-size:11px;color:var(--txt3);margin-top:1px;}
+.spill{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+.rbtn{display:flex;gap:3px;flex-shrink:0;}
+.sk{background:var(--blu-bg);color:var(--blu);}
+.st{background:var(--pur-bg);color:var(--pur);}
+.ss{background:var(--ylw-bg);color:var(--ylw);}
+.so{background:var(--grn-bg);color:var(--grn);}
+.su{background:var(--org-bg);color:var(--org);}
+.sm{background:#fce7f3;color:#be185d;}
+.sd{background:var(--grn-bg);color:var(--grn);}
+.pdf-zone{border:2px dashed var(--pr-bd);border-radius:var(--r);padding:28px 20px;text-align:center;cursor:pointer;background:var(--pr-bg);position:relative;transition:.2s;}
+.pdf-zone:hover{border-color:var(--pr);}
+.pdf-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.pzico{font-size:32px;margin-bottom:6px;}
+.pztxt{font-size:14px;font-weight:800;color:var(--pr);}
+.pzsub{font-size:12px;color:var(--txt3);margin-top:3px;}
+.info{background:var(--blu-bg);border:1px solid var(--blu-bd);border-radius:var(--r2);padding:9px 13px;font-size:12px;color:var(--blu);font-weight:600;line-height:1.5;margin-bottom:12px;}
+.info-grn{background:var(--grn-bg);border:1px solid var(--grn-bd);border-radius:var(--r2);padding:9px 13px;font-size:12px;color:var(--grn);font-weight:700;margin-top:10px;margin-bottom:4px;}
+.st-sel{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px;}
+.sopt{padding:5px 12px;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent;opacity:.55;transition:.12s;}
+.sopt:hover{opacity:.9;}
+.sopt.on{border-color:currentColor;opacity:1;}
+.tsign{border:1.5px solid var(--bd);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;}
+.tsign-hd{display:flex;align-items:center;gap:9px;padding:9px 13px;background:#f9f9f9;border-bottom:1px solid var(--bd);}
+.tsign-num{width:22px;height:22px;border-radius:50%;background:var(--pr);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tsign-bd{padding:12px 13px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:540px){.tsign-bd{grid-template-columns:1fr;}}
+.kinfo{background:#f8f9fa;border-radius:var(--r2);padding:10px 11px;}
+.kr{display:flex;gap:6px;align-items:baseline;margin-bottom:4px;}
+.kk{font-size:10px;font-weight:800;color:var(--txt3);min-width:48px;text-transform:uppercase;}
+.kv{font-size:13px;font-weight:700;}
+.dbox{border:2px dashed #ccc;border-radius:var(--r2);min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;background:#fafafa;transition:.15s;}
+.dbox:hover{border-color:var(--pr);background:var(--pr-bg);}
+.dbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.dbox-lbl{font-size:12px;color:var(--txt3);font-weight:700;text-align:center;padding:10px;z-index:1;pointer-events:none;line-height:1.5;}
+.dacts{display:flex;gap:5px;margin-top:6px;}
+.sec{font-size:11px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 7px;}
+.abar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.onay-ok{background:var(--grn-bg);border:1px solid var(--grn-bd);border-radius:var(--r2);padding:10px 13px;font-size:13px;color:var(--grn);font-weight:800;}
+.onay-bk{background:var(--ylw-bg);border:1px solid var(--ylw-bd);border-radius:var(--r2);padding:10px 13px;font-size:13px;color:var(--ylw);font-weight:700;}
+.empty{text-align:center;padding:30px 16px;color:var(--txt3);}
+.eico{font-size:28px;margin-bottom:7px;}
+.etxt{font-size:13px;font-weight:700;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:#111;color:#fff;padding:9px 20px;border-radius:16px;font-size:13px;font-weight:700;z-index:9999;transition:.28s;opacity:0;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.err{background:var(--pr);}
+.srch{width:100%;padding:8px 12px;border:1.5px solid var(--bd);border-radius:var(--r2);font-size:13px;outline:none;margin-bottom:8px;}
+.srch:focus{border-color:var(--pr);}
+@media print{
+  @page{size:A4 landscape;margin:10mm 12mm;}
+  .topnav,.abar,.st-sel,.no-print,.btn{display:none!important;}
+  body,html{background:#fff!important;}
+  .main{padding:0!important;max-width:100%!important;}
+  .split{display:block!important;}
+  .card{box-shadow:none!important;border:1px solid #ddd!important;}
+}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">PAPRİKA<em>OFİS</em></div>
+  <div class="nav-tabs">
+    <button class="ntab on" id="tab-dash" onclick="goPage('p-dash')">📊 Özet</button>
+    <button class="ntab" id="tab-list" onclick="goPage('p-list')">📁 Projeler</button>
+    <button class="ntab" id="tab-new" onclick="goPage('p-new')">➕ Yeni Proje</button>
+  </div>
+  <div class="ml no-print">
+    <span class="badge" id="top-cnt">0</span>
+    <span style="font-size:12px;color:var(--txt3);font-weight:700;">proje</span>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="p-dash" class="page on">
+  <div class="stats">
+    <div class="sc"><div class="sn" id="s0">0</div><div class="sl">Toplam</div></div>
+    <div class="sc"><div class="sn" style="color:var(--pur)" id="s1">0</div><div class="sl">Tasarım Bekleniyor</div></div>
+    <div class="sc"><div class="sn" style="color:var(--ylw)" id="s2">0</div><div class="sl">Onay Bekleniyor</div></div>
+    <div class="sc"><div class="sn" style="color:var(--grn)" id="s3">0</div><div class="sl">Onaylandı / Üretimde</div></div>
+  </div>
+  <div class="card">
+    <div class="card-ttl">⚡ Son Projeler</div>
+    <div id="dash-list"></div>
+  </div>
+</div>
+
+<!-- PROJELER -->
+<div id="p-list" class="page">
+  <div class="split">
+    <div class="sticky">
+      <div class="card" style="padding:12px;">
+        <input class="srch" id="q" placeholder="🔍 Proje veya müşteri ara..." oninput="renderList()">
+        <div id="plist"></div>
+        <button class="btn bpr bfull no-print" style="margin-top:8px;" onclick="goPage('p-new')">➕ Yeni Proje</button>
+      </div>
+    </div>
+    <div id="dcol">
+      <div class="card"><div class="empty"><div class="eico">👈</div><div class="etxt">Sol listeden proje seç</div></div></div>
+    </div>
